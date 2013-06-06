@@ -1,0 +1,13 @@
+tags
+.DS_Store
+
+*.swp
+*.swo
+*.suo
+*.swn
+*.userprefs
+
+test-results/
+bin/
+obj/
+docs/
