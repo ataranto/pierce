@@ -5,23 +5,36 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pierce", "src\Pierce\Pierce
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pierce.Example.Console", "src\Pierce.Example.Console\Pierce.Example.Console.csproj", "{379CB7DD-9CA7-4F69-ACE8-7B7A1CD0852D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pierce.Example.Mac", "src\Pierce.Example.Mac\Pierce.Example.Mac.csproj", "{248E65BE-00D8-43DC-AE69-444BBA769E55}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x86 = Debug|x86
 		Release|x86 = Release|x86
+		AppStore|x86 = AppStore|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{01EA2FF4-5FE4-46F5-856A-38B1422B300D}.AppStore|x86.ActiveCfg = Debug|Any CPU
+		{01EA2FF4-5FE4-46F5-856A-38B1422B300D}.AppStore|x86.Build.0 = Debug|Any CPU
 		{01EA2FF4-5FE4-46F5-856A-38B1422B300D}.Debug|x86.ActiveCfg = Debug|Any CPU
 		{01EA2FF4-5FE4-46F5-856A-38B1422B300D}.Debug|x86.Build.0 = Debug|Any CPU
 		{01EA2FF4-5FE4-46F5-856A-38B1422B300D}.Release|x86.ActiveCfg = Release|Any CPU
 		{01EA2FF4-5FE4-46F5-856A-38B1422B300D}.Release|x86.Build.0 = Release|Any CPU
+		{248E65BE-00D8-43DC-AE69-444BBA769E55}.AppStore|x86.ActiveCfg = AppStore|x86
+		{248E65BE-00D8-43DC-AE69-444BBA769E55}.AppStore|x86.Build.0 = AppStore|x86
+		{248E65BE-00D8-43DC-AE69-444BBA769E55}.Debug|x86.ActiveCfg = Debug|x86
+		{248E65BE-00D8-43DC-AE69-444BBA769E55}.Debug|x86.Build.0 = Debug|x86
+		{248E65BE-00D8-43DC-AE69-444BBA769E55}.Release|x86.ActiveCfg = Release|x86
+		{248E65BE-00D8-43DC-AE69-444BBA769E55}.Release|x86.Build.0 = Release|x86
+		{379CB7DD-9CA7-4F69-ACE8-7B7A1CD0852D}.AppStore|x86.ActiveCfg = Debug|x86
+		{379CB7DD-9CA7-4F69-ACE8-7B7A1CD0852D}.AppStore|x86.Build.0 = Debug|x86
 		{379CB7DD-9CA7-4F69-ACE8-7B7A1CD0852D}.Debug|x86.ActiveCfg = Debug|x86
 		{379CB7DD-9CA7-4F69-ACE8-7B7A1CD0852D}.Debug|x86.Build.0 = Debug|x86
 		{379CB7DD-9CA7-4F69-ACE8-7B7A1CD0852D}.Release|x86.ActiveCfg = Release|x86
 		{379CB7DD-9CA7-4F69-ACE8-7B7A1CD0852D}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(MonoDevelopProperties) = preSolution
-		StartupItem = src\Pierce.Example.Console\Pierce.Example.Console.csproj
+		StartupItem = src\Pierce.Example.Mac\Pierce.Example.Mac.csproj
 		Policies = $0
 		$0.StandardHeader = $1
 		$1.Text = 
