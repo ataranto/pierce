@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pierce", "src\Pierce\Pierce.csproj", "{01EA2FF4-5FE4-46F5-856A-38B1422B300D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pierce.Example.Console", "src\Pierce.Example.Console\Pierce.Example.Console.csproj", "{379CB7DD-9CA7-4F69-ACE8-7B7A1CD0852D}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pierce.Example.Mac", "src\Pierce.Example.Mac\Pierce.Example.Mac.csproj", "{248E65BE-00D8-43DC-AE69-444BBA769E55}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pierce.Example", "src\Pierce.Example\Pierce.Example.csproj", "{FAADE079-A44A-4CBA-A33B-EF2B59192961}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -26,12 +26,12 @@ Global
 		{248E65BE-00D8-43DC-AE69-444BBA769E55}.Debug|x86.Build.0 = Debug|x86
 		{248E65BE-00D8-43DC-AE69-444BBA769E55}.Release|x86.ActiveCfg = Release|x86
 		{248E65BE-00D8-43DC-AE69-444BBA769E55}.Release|x86.Build.0 = Release|x86
-		{379CB7DD-9CA7-4F69-ACE8-7B7A1CD0852D}.AppStore|x86.ActiveCfg = Debug|x86
-		{379CB7DD-9CA7-4F69-ACE8-7B7A1CD0852D}.AppStore|x86.Build.0 = Debug|x86
-		{379CB7DD-9CA7-4F69-ACE8-7B7A1CD0852D}.Debug|x86.ActiveCfg = Debug|x86
-		{379CB7DD-9CA7-4F69-ACE8-7B7A1CD0852D}.Debug|x86.Build.0 = Debug|x86
-		{379CB7DD-9CA7-4F69-ACE8-7B7A1CD0852D}.Release|x86.ActiveCfg = Release|x86
-		{379CB7DD-9CA7-4F69-ACE8-7B7A1CD0852D}.Release|x86.Build.0 = Release|x86
+		{FAADE079-A44A-4CBA-A33B-EF2B59192961}.AppStore|x86.ActiveCfg = Release|Any CPU
+		{FAADE079-A44A-4CBA-A33B-EF2B59192961}.AppStore|x86.Build.0 = Release|Any CPU
+		{FAADE079-A44A-4CBA-A33B-EF2B59192961}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{FAADE079-A44A-4CBA-A33B-EF2B59192961}.Debug|x86.Build.0 = Debug|Any CPU
+		{FAADE079-A44A-4CBA-A33B-EF2B59192961}.Release|x86.ActiveCfg = Release|Any CPU
+		{FAADE079-A44A-4CBA-A33B-EF2B59192961}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(MonoDevelopProperties) = preSolution
 		StartupItem = src\Pierce.Example.Mac\Pierce.Example.Mac.csproj

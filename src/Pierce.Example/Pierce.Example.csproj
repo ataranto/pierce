@@ -2,31 +2,29 @@
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>10.0.0</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{379CB7DD-9CA7-4F69-ACE8-7B7A1CD0852D}</ProjectGuid>
-    <OutputType>Exe</OutputType>
-    <RootNamespace>Pierce.Example.Console</RootNamespace>
-    <AssemblyName>Pierce.Example.Console</AssemblyName>
+    <ProjectGuid>{FAADE079-A44A-4CBA-A33B-EF2B59192961}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <RootNamespace>Pierce.Example</RootNamespace>
+    <AssemblyName>Pierce.Example</AssemblyName>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug</OutputPath>
     <DefineConstants>DEBUG;</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <PlatformTarget>x86</PlatformTarget>
-    <Externalconsole>true</Externalconsole>
+    <ConsolePause>false</ConsolePause>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <Optimize>true</Optimize>
     <OutputPath>bin\Release</OutputPath>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <PlatformTarget>x86</PlatformTarget>
-    <Externalconsole>true</Externalconsole>
+    <ConsolePause>false</ConsolePause>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -35,23 +33,28 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="IDateTime.cs" />
-    <Compile Include="DateTime.cs" />
-    <Compile Include="IDateTimeView.cs" />
-    <Compile Include="ConsoleDateTimeView.cs" />
-    <Compile Include="SimpleInjectorContainer.cs" />
-    <Compile Include="DateTimePresenter.cs" />
+    <Compile Include="Pierce.Example.Views\IDateTimeView.cs" />
+    <Compile Include="Pierce.Example.Containers\SimpleInjectorContainer.cs" />
+    <Compile Include="Pierce.Example.Models\IDateTimeModel.cs" />
+    <Compile Include="Pierce.Example.Models\DateTimeModel.cs" />
+    <Compile Include="Pierce.Example.Presenters\DateTimePresenter.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
-    <None Include="packages.config" />
+    <Folder Include="Pierce.Example.Models\" />
+    <Folder Include="Pierce.Example.Views\" />
+    <Folder Include="Pierce.Example\" />
+    <Folder Include="Pierce.Example.Containers\" />
+    <Folder Include="Pierce.Example.Presenters\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Pierce\Pierce.csproj">
       <Project>{01EA2FF4-5FE4-46F5-856A-38B1422B300D}</Project>
       <Name>Pierce</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
 </Project>

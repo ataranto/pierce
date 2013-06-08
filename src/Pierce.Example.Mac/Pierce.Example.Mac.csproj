@@ -66,9 +66,13 @@
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Drawing" />
     <Reference Include="MonoMac" />
+    <Reference Include="SimpleInjector">
+      <HintPath>..\..\packages\SimpleInjector.2.2.3\lib\net40-client\SimpleInjector.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Resources\" />
+    <Folder Include="Pierce.Example.Mac.Views\" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="MainWindow.cs" />
@@ -81,6 +85,7 @@
     <Compile Include="AppDelegate.designer.cs">
       <DependentUpon>AppDelegate.cs</DependentUpon>
     </Compile>
+    <Compile Include="Pierce.Example.Mac.Views\TextDateTimeView.cs" />
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="MainWindow.xib" />
@@ -88,7 +93,18 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Info.plist" />
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="$(MSBuildExtensionsPath)\Mono\MonoMac\v0.0\Mono.MonoMac.targets" />
+  <ItemGroup>
+    <ProjectReference Include="..\Pierce.Example\Pierce.Example.csproj">
+      <Project>{FAADE079-A44A-4CBA-A33B-EF2B59192961}</Project>
+      <Name>Pierce.Example</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Pierce\Pierce.csproj">
+      <Project>{01EA2FF4-5FE4-46F5-856A-38B1422B300D}</Project>
+      <Name>Pierce</Name>
+    </ProjectReference>
+  </ItemGroup>
 </Project>
