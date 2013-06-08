@@ -11,9 +11,9 @@ namespace Pierce.Example.Mac.Views
         }
 
 
-        public void SetValue(string value)
+        public void SetValue(DateTime value)
         {
-            StringValue = value;
+            StringValue = value.ToString();
         }
     }
 }

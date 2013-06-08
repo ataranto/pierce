@@ -32,7 +32,7 @@ namespace Pierce.Example.Presenters
 
         private void UpdateView()
         {
-            var value = Model.Value.ToString();
+            var value = Model.Value;
 
             _ui_thread(() =>
             {

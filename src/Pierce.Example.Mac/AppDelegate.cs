@@ -37,7 +37,8 @@ namespace Pierce.Example.Mac
             var model = simple_injector.Get<IDateTimeModel>();
 
             var view = simple_injector.
-                GetView<TextDateTimeView>().
+                //GetView<TextDateTimeView>().
+                GetView<AnalogDateTimeView>().
                 WithModel(model).
                 //WithModel<IDateTimeModel>().
                 WithPresenter<IDateTimeView, DateTimePresenter>().
