@@ -21,8 +21,6 @@ namespace Pierce.Example.Mac.Views
         {
             date_time = value;
             SetNeedsDisplayInRect(Bounds);
-
-            Console.WriteLine(value);
         }
 
         public override void DrawRect(RectangleF dirtyRect)
@@ -47,20 +45,28 @@ namespace Pierce.Example.Mac.Views
                 Y = Bounds.Height / 2,
             };
 
-            DrawHand(path, center, (float)date_time.Hour / 24, radius);
-            DrawHand(path, center, (float)date_time.Minute / 60, radius);
-            DrawHand(path, center, (float)date_time.Second / 60, radius);
-
+            DrawHand(path, center, GetRadians(date_time.Hour, 24), radius * hour_hand_radius);
+            DrawHand(path, center, GetRadians(date_time.Minute, 60), radius * minute_hand_radius);
+            DrawHand(path, center, GetRadians(date_time.Second, 60), radius);
         }
 
-        private static void DrawHand(NSBezierPath path, PointF center, float angle, float radius)
+        private static double GetRadians(double numerator, double denominator)
+        {
+            return
+                Math.PI *
+                (numerator / denominator) /
+                180.0 * 360.0;
+        }
+
+        private static void DrawHand(NSBezierPath path, PointF center, double radians, float radius)
         {
             path.MoveTo(center);
             path.LineTo(new PointF
             {
-                X = center.X + (float)Math.Cos(angle) * radius,
-                Y = center.Y + (float)Math.Sin(angle) * radius,
+                X = center.X + (float)Math.Sin(radians) * radius,
+                Y = center.Y + (float)Math.Cos(radians) * radius,
             });
+
             path.Stroke();
         }
 
