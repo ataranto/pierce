@@ -1,12 +1,11 @@
 using MonoMac.Foundation;
 using MonoMac.AppKit;
-using Pierce.Example.Containers;
 using Pierce.Example.Models;
 using Pierce.Example.Views;
 using Pierce.Example.Mac.Views;
 using Pierce.Example.Presenters;
-using SimpleInjector;
 using System;
+using Ninject;
 
 namespace Pierce.Example.Mac
 {
@@ -14,36 +13,89 @@ namespace Pierce.Example.Mac
     {
         MainWindowController mainWindowController;
 
-        public AppDelegate()
-        {
-        }
 
         public override void FinishedLaunching(NSObject notification)
         {
-            Func<Action<Action>> invoke = () => x =>
-                BeginInvokeOnMainThread(new NSAction(() => x()));
-
-            var simple_injector = new SimpleInjectorContainer();
-            simple_injector.Container.
-                Register<Action<Action>>(invoke, Lifestyle.Singleton);
-            simple_injector.Container.
-                Register<IDateTimeModel, DateTimeModel>(Lifestyle.Singleton);
-            simple_injector.Container.
-                Register<IDateTimeView, TextDateTimeView>();
+            var module = new Module(this);
+            var kernel = new StandardKernel(module);
+            var container = kernel.Get<IContainer>();
 
             mainWindowController = new MainWindowController();
             mainWindowController.Window.MakeKeyAndOrderFront(this);
 
-            var model = simple_injector.Get<IDateTimeModel>();
+            var vertical_box = new VerticalBox();
+            var horizontal_box = new HorizontalBox();
 
-            var view = simple_injector.
-                //GetView<TextDateTimeView>().
-                GetView<AnalogDateTimeView>().
-                WithModel(model).
-                //WithModel<IDateTimeModel>().
-                WithPresenter<IDateTimeView, DateTimePresenter>().
-                ToView();
-            mainWindowController.Window.ContentView = view;
+            NSButton button;
+
+            button = CreateButton("Model: Utc | View: Digital", delegate
+            {
+                var view = container.
+                    GetView<DigitalDateTimeView>().
+                    WithModel<IDateTimeModel>().
+                    WithPresenter<IDateTimeView, DateTimePresenter>().
+                    ToView();
+
+                vertical_box.AddSubview(view, 100);
+                vertical_box.Update();
+            });
+            horizontal_box.AddSubview(button);
+
+            button = CreateButton("Model: Utc | View: Analog", delegate
+            {
+                var view = container.
+                    GetView<AnalogDateTimeView>().
+                    WithModel<IDateTimeModel>().
+                    WithPresenter<IDateTimeView, DateTimePresenter>().
+                    ToView();
+
+                vertical_box.AddSubview(view, 100);
+                vertical_box.Update();
+            });
+            horizontal_box.AddSubview(button);
+
+            button = CreateButton("Model: Local | View: Digital", (sender, e) =>
+            {
+                var model = new LocalDateTimeModel();
+                var view = container.
+                    GetView<DigitalDateTimeView>().
+                    WithModel<IDateTimeModel>(model).
+                    WithPresenter<IDateTimeView, DateTimePresenter>().
+                    ToView();
+
+                vertical_box.AddSubview(view, 100);
+                vertical_box.Update();
+            });
+            horizontal_box.AddSubview(button);
+
+            button = CreateButton("Model: Local | View: Analog", delegate
+            {
+                var model = new LocalDateTimeModel();
+                var view = container.
+                    GetView<AnalogDateTimeView>().
+                    WithModel<IDateTimeModel>(model).
+                    WithPresenter<IDateTimeView, DateTimePresenter>().
+                    ToView();
+
+                vertical_box.AddSubview(view, 100);
+                vertical_box.Update();
+            });
+            horizontal_box.AddSubview(button);
+
+            vertical_box.AddSubview(horizontal_box, button.Frame.Height);
+            mainWindowController.Window.ContentView = vertical_box;
+        }
+
+        private static NSButton CreateButton(string title, EventHandler handler)
+        {
+            var button = new NSButton
+            {
+                Title = title,
+            };
+
+            button.Activated += handler;
+            button.SizeToFit();
+            return button;
         }
     }
 }

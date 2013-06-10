@@ -4,12 +4,12 @@ using Pierce.Example.Views;
 
 namespace Pierce.Example.Mac.Views
 {
-    public class TextDateTimeView : NSTextField, IDateTimeView
+    public class DigitalDateTimeView : NSTextField, IDateTimeView
     {
-        public TextDateTimeView()
+        public DigitalDateTimeView()
         {
+            Editable = false;
         }
-
 
         public void SetValue(DateTime value)
         {
