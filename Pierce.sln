@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pierce.Example.Mac", "src\P
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pierce.Example", "src\Pierce.Example\Pierce.Example.csproj", "{FAADE079-A44A-4CBA-A33B-EF2B59192961}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pierce.Net.Example", "src\Pierce.Net.Example\Pierce.Net.Example.csproj", "{1F2CFD13-3E1B-44FB-AA7A-928F5C09EFBC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x86 = Debug|x86
@@ -20,6 +22,12 @@ Global
 		{01EA2FF4-5FE4-46F5-856A-38B1422B300D}.Debug|x86.Build.0 = Debug|Any CPU
 		{01EA2FF4-5FE4-46F5-856A-38B1422B300D}.Release|x86.ActiveCfg = Release|Any CPU
 		{01EA2FF4-5FE4-46F5-856A-38B1422B300D}.Release|x86.Build.0 = Release|Any CPU
+		{1F2CFD13-3E1B-44FB-AA7A-928F5C09EFBC}.AppStore|x86.ActiveCfg = Release|x86
+		{1F2CFD13-3E1B-44FB-AA7A-928F5C09EFBC}.AppStore|x86.Build.0 = Release|x86
+		{1F2CFD13-3E1B-44FB-AA7A-928F5C09EFBC}.Debug|x86.ActiveCfg = Debug|x86
+		{1F2CFD13-3E1B-44FB-AA7A-928F5C09EFBC}.Debug|x86.Build.0 = Debug|x86
+		{1F2CFD13-3E1B-44FB-AA7A-928F5C09EFBC}.Release|x86.ActiveCfg = Release|x86
+		{1F2CFD13-3E1B-44FB-AA7A-928F5C09EFBC}.Release|x86.Build.0 = Release|x86
 		{248E65BE-00D8-43DC-AE69-444BBA769E55}.AppStore|x86.ActiveCfg = AppStore|x86
 		{248E65BE-00D8-43DC-AE69-444BBA769E55}.AppStore|x86.Build.0 = AppStore|x86
 		{248E65BE-00D8-43DC-AE69-444BBA769E55}.Debug|x86.ActiveCfg = Debug|x86
@@ -34,7 +42,7 @@ Global
 		{FAADE079-A44A-4CBA-A33B-EF2B59192961}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(MonoDevelopProperties) = preSolution
-		StartupItem = src\Pierce.Example.Mac\Pierce.Example.Mac.csproj
+		StartupItem = src\Pierce.Net.Example\Pierce.Net.Example.csproj
 		Policies = $0
 		$0.StandardHeader = $1
 		$1.Text = 
