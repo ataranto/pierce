@@ -35,11 +35,6 @@ namespace Pierce.Net.Example
                 };
 
                 queue.Add(request);
-
-                if (x % 3 == 0)
-                {
-                    request.Cancel();
-                }
             };
 
             Console.ReadLine();

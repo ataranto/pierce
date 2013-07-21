@@ -5,6 +5,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading;
 using System.Text;
+using System.Linq;
 
 namespace Pierce.Net
 {
@@ -26,6 +27,7 @@ namespace Pierce.Net
         public Uri Uri { get; set; }
         public Priority Priority { get; set; }
         public int Sequence { get; set; }
+        public object Tag { get; set; }
         public RequestQueue RequestQueue { get; set; }
         public bool ShouldCache { get; set; }
         public bool IsCanceled { get; private set; }
@@ -76,6 +78,7 @@ namespace Pierce.Net
             Finish();
         }
 
+        // XXX: should be in Response ctor or static Create() method? see Response.success()
         protected static CacheEntry GetCacheEntry(NetworkResponse response)
         {
             return new CacheEntry
@@ -173,7 +176,7 @@ namespace Pierce.Net
         private readonly BlockingCollection<Request> _network_queue = new BlockingCollection<Request>();
 
         private readonly ISet<Request> _requests = new HashSet<Request>();
-        private readonly IDictionary<object, List<Request>> _active_requests = new Dictionary<object, List<Request>>();
+        private readonly IDictionary<object, List<Request>> _blocked_requests = new Dictionary<object, List<Request>>();
 
         private readonly Cache _cache;
         private readonly Network _network;
@@ -208,24 +211,45 @@ namespace Pierce.Net
                 return request;
             }
 
-            lock (_active_requests)
+            lock (_blocked_requests)
             {
                 List<Request> list;
-                if (_active_requests.TryGetValue(request.CacheKey, out list))
+                if (_blocked_requests.TryGetValue(request.CacheKey, out list))
                 {
                     list = list ?? new List<Request>();
                     list.Add(request);
 
-                    _active_requests[request.CacheKey] = list;
+                    _blocked_requests[request.CacheKey] = list;
                 }
                 else
                 {
-                    _active_requests[request.CacheKey] = null;
+                    _blocked_requests[request.CacheKey] = null;
                     _cache_queue.Add(request);
                 }                
             }
 
             return request;
+        }
+
+        public void Cancel(Func<Request, bool> filter)
+        {
+            lock (_requests)
+            {
+                foreach (var request in _requests.Where(filter))
+                {
+                    request.Cancel();
+                }
+            }
+        }
+
+        public void Cancel(object tag)
+        {
+            if (tag == null)
+            {
+                throw new InvalidOperationException("tag");
+            }
+
+            Cancel(request => request.Tag == tag);
         }
 
         public void Finish(Request request)
@@ -239,10 +263,10 @@ namespace Pierce.Net
             {
                 List<Request> list;
 
-                lock (_active_requests)
+                lock (_blocked_requests)
                 {
-                    if (_active_requests.TryGetValue(request.CacheKey, out list) &&
-                        _active_requests.Remove(request.CacheKey) &&
+                    if (_blocked_requests.TryGetValue(request.CacheKey, out list) &&
+                        _blocked_requests.Remove(request.CacheKey) &&
                         list != null)
                     {
                         list.ForEach(_cache_queue.Add);
