@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Net;
 using System.Text;
@@ -28,6 +29,7 @@ namespace Pierce.Net
         public Priority Priority { get; set; }
         public int Sequence { get; set; }
         public object Tag { get; set; }
+        public CacheEntry CacheEntry { get; set; }
         public RequestQueue RequestQueue { get; set; }
         public bool ShouldCache { get; set; }
         public bool IsCanceled { get; private set; }
@@ -38,7 +40,7 @@ namespace Pierce.Net
         }
 
         public abstract Response Parse(NetworkResponse response);
-        public abstract void SetResponse(Response response);
+        public abstract void SetResponse(Response response, Action action = null);
 
         public void Cancel()
         {
@@ -63,7 +65,9 @@ namespace Pierce.Net
     {
         public Action<T> OnResponse { get; set; }
 
-        public override void SetResponse(Response response)
+        private static string date_format = "ddd, dd MMM yyyy hh:mm:ss GMT";
+
+        public override sealed void SetResponse(Response response, Action action = null)
         {
             if (IsCanceled)
             {
@@ -76,16 +80,87 @@ namespace Pierce.Net
 
             OnResponse(result);
             Finish();
+
+            if (action != null)
+            {
+                action();
+            }
         }
 
         // XXX: should be in Response ctor or static Create() method? see Response.success()
         protected static CacheEntry GetCacheEntry(NetworkResponse response)
         {
+            var headers = response.Headers;
+
+            long server_date = 0;
+            long server_expires = 0;
+            long soft_expires = 0;
+            long max_age = 0;
+            var has_cache_control = false;
+
+            var value = headers.Get("Date");
+            if (value != null)
+            {
+                server_date = ParseDate(value);
+            }
+
+            value = headers.Get("Cache-Control");
+            if (value != null)
+            {
+                has_cache_control = true;
+                foreach (var token in value.Split(',').Select(x => x.Trim()))
+                {
+                    if (token == "no-cache" || token == "no-store")
+                    {
+                        return null;
+                    }
+                    else if (token.StartsWith("max-age="))
+                    {
+                        Int64.TryParse(token.Substring(8), out max_age);
+                    }
+                }
+            }
+
+            value = headers.Get("Expires");
+            if (value != null)
+            {
+                server_expires = ParseDate(value);
+            }
+
+            if (has_cache_control)
+            {
+                var now = DateTime.Now.Ticks;
+                soft_expires = now + max_age * 1000;
+            }
+            else if (server_date > 0 && server_expires > + server_date)
+            {
+                soft_expires = (server_expires - server_date);
+            }
+
             return new CacheEntry
             {
                 Data = response.Data,
+                ETag = headers.Get("ETag"),
+                Expires = soft_expires,
+                SoftExpires = soft_expires,
+                ServerDate = server_date,
                 Headers = response.Headers,
             };
+        }
+
+        private static long ParseDate(string @string)
+        {
+            try
+            {
+                var provider = CultureInfo.InvariantCulture;
+                var date = DateTime.ParseExact(@string, date_format, provider);
+
+                return date.Ticks;
+            }
+            catch
+            {
+                return 0;
+            }
         }
     }
 
@@ -104,6 +179,7 @@ namespace Pierce.Net
     public class Response
     {
         public CacheEntry CacheEntry { get; set; }
+        public bool IsIntermediate { get; set; }
     }
 
     public class Response<T> : Response
@@ -130,6 +206,7 @@ namespace Pierce.Net
                 var client = new WebClient();
                 response.Data = client.DownloadData(request.Uri);
                 response.StatusCode = HttpStatusCode.OK;
+                response.Headers = client.ResponseHeaders;
             }
             catch
             {
@@ -153,9 +230,18 @@ namespace Pierce.Net
         {
             try
             {
-                // XXX: need request.CacheEntry, add cache headers
-                var cache_headers = new WebHeaderCollection();
+                var cache_headers = GetCacheHeaders(request.CacheEntry);
                 var response = _client.Execute(request, cache_headers);
+
+                if (response.StatusCode == HttpStatusCode.NotModified)
+                {
+                    return new NetworkResponse
+                    {
+                        StatusCode = response.StatusCode,
+                        Data = request.CacheEntry.Data,
+                        Headers = response.Headers,
+                    };
+                }
 
                 return response;
             }
@@ -164,14 +250,50 @@ namespace Pierce.Net
                 throw;
             }
         }
+
+        private static WebHeaderCollection GetCacheHeaders(CacheEntry entry)
+        {
+            var headers = new WebHeaderCollection();
+
+            if (entry == null)
+            {
+                return headers;
+            }
+
+            if (entry.ETag != null)
+            {
+                headers.Add(HttpRequestHeader.IfNoneMatch, entry.ETag);
+            }
+
+            if (entry.ServerDate > 0)
+            {
+                // XXX: no clue if this is the correct date format
+                var date = new DateTime(entry.ServerDate).ToShortDateString();
+                headers.Add(HttpRequestHeader.IfModifiedSince, date);
+            }
+
+            return headers;
+        }
     }
 
     public class CacheEntry
     {
         public byte[] Data { get; set; }
         public string ETag { get; set; }
+        public long Expires { get; set; }
+        public long SoftExpires { get; set; }
         public long ServerDate { get; set; }
         public WebHeaderCollection Headers { get; set; }
+
+        public bool IsExpired
+        {
+            get { return Expires < DateTime.Now.Ticks; }
+        }
+
+        public bool ShouldRefresh
+        {
+            get { return SoftExpires < DateTime.Now.Ticks; }
+        }
     }
 
     public class Cache
@@ -320,13 +442,30 @@ namespace Pierce.Net
                     continue;
                 }
 
+                if (entry.IsExpired)
+                {
+                    request.CacheEntry = entry;
+                    _network_queue.Add(request);
+                    continue;
+                }
+
                 var response = request.Parse(new NetworkResponse
                 {
                     Data = entry.Data,
                     Headers = entry.Headers,
                 });
 
-                request.SetResponse(response);
+                if (!entry.ShouldRefresh)
+                {
+                    request.SetResponse(response);
+                }
+                else
+                {
+                    request.CacheEntry = entry;
+                    response.IsIntermediate = true;
+
+                    request.SetResponse(response, () => _network_queue.Add(request));
+                }
             }
         }
 

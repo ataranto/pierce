@@ -1,9 +1,6 @@
 using System;
-using Pierce.Net;
-using System.Text;
-using System.Threading.Tasks;
-using System.Linq;
 using System.Threading;
+using Pierce.Net;
 
 namespace Pierce.Net.Example
 {
@@ -15,6 +12,7 @@ namespace Pierce.Net.Example
 
             var google = new Uri("http://www.google.com");
             var yahoo = new Uri("http://www.yahoo.com");
+            var songkick = new Uri("http://api.songkick.com/api/3.0/events.json?location=clientip&apikey=G2KCF6q91g23Q6Zh");
 
             for (var x = 1; x <= 16; x++)
             {
@@ -23,7 +21,7 @@ namespace Pierce.Net.Example
                 var request_number = x;
                 var uri = x % 2 == 0 ?
                     google :
-                    yahoo;
+                    songkick;
 
                 var request = new StringRequest
                 {
