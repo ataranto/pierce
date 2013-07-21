@@ -15,7 +15,7 @@ namespace Pierce.Net
         High,
     }
 
-    public class Request
+    public abstract class Request
     {
         public Request()
         {
@@ -28,7 +28,9 @@ namespace Pierce.Net
         public int Sequence { get; set; }
         public bool ShouldCache { get; set; }
         public bool IsCanceled { get; private set; }
-        public Action<Response> OnResponse { get; set; }
+
+        public abstract Response Parse(NetworkResponse response);
+        public abstract void SetResponse(Response response);
 
         public void Cancel()
         {
@@ -41,9 +43,48 @@ namespace Pierce.Net
         }
     }
 
+    public abstract class Request<T> : Request
+    {
+        public Action<T> OnResponse { get; set; }
+
+        public override void SetResponse(Response response)
+        {
+            var typed_response = response as Response<T>;
+            var result = typed_response.Result;
+
+            OnResponse(result);
+        }
+
+        protected static CacheEntry GetCacheEntry(NetworkResponse response)
+        {
+            return new CacheEntry
+            {
+                Data = response.Data,
+                Headers = response.Headers,
+            };
+        }
+    }
+
+    public class StringRequest : Request<string>
+    {
+        public override Response Parse(NetworkResponse response)
+        {
+            return new Response<string>
+            {
+                CacheEntry = GetCacheEntry(response),
+                Result = Encoding.UTF8.GetString(response.Data),
+            };
+        }
+    }
+
     public class Response
     {
-        public byte[] Data { get; set; }
+        public CacheEntry CacheEntry { get; set; }
+    }
+
+    public class Response<T> : Response
+    {
+        public T Result { get; set; }
     }
 
     public class NetworkResponse
@@ -78,6 +119,7 @@ namespace Pierce.Net
     public class CacheEntry
     {
         public byte[] Data { get; set; }
+        public WebHeaderCollection Headers { get; set; }
     }
 
     public class Cache
@@ -175,8 +217,14 @@ namespace Pierce.Net
                     continue;
                 }
 
-                var response = new Response { Data = entry.Data };
-                Complete(request, response);
+                var response = request.Parse(new NetworkResponse
+                {
+                    Data = entry.Data,
+                    Headers = entry.Headers,
+                });
+
+                request.SetResponse(response);
+                Complete(request);
             }
         }
 
@@ -192,18 +240,19 @@ namespace Pierce.Net
                 }
 
                 var network_response = _network.Execute(request);
+                var response = request.Parse(network_response);
 
-                if (request.ShouldCache)
+                if (request.ShouldCache && response.CacheEntry != null)
                 {
-                    _cache[request.Uri] = new CacheEntry { Data = network_response.Data };
+                    _cache[request.Uri] = response.CacheEntry;
                 }
 
-                var response = new Response { Data = network_response.Data };
-                Complete(request, response);
+                request.SetResponse(response);
+                Complete(request);
             }
         }
 
-        private void Complete(Request request, Response response)
+        private void Complete(Request request)
         {
             if (request.ShouldCache)
             {
@@ -220,8 +269,6 @@ namespace Pierce.Net
                     }
                 }
             }
-
-            request.OnResponse(response);
         }
     }
 }
