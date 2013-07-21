@@ -26,6 +26,7 @@ namespace Pierce.Net
         public Uri Uri { get; set; }
         public Priority Priority { get; set; }
         public int Sequence { get; set; }
+        public RequestQueue RequestQueue { get; set; }
         public bool ShouldCache { get; set; }
         public bool IsCanceled { get; private set; }
 
@@ -35,6 +36,14 @@ namespace Pierce.Net
         public void Cancel()
         {
             IsCanceled = true;
+        }
+
+        public void Finish()
+        {
+            if (RequestQueue != null)
+            {
+                RequestQueue.Finish(this);
+            }
         }
 
         public override string ToString()
@@ -49,10 +58,17 @@ namespace Pierce.Net
 
         public override void SetResponse(Response response)
         {
+            if (IsCanceled)
+            {
+                Finish();
+                return;
+            }
+
             var typed_response = response as Response<T>;
             var result = typed_response.Result;
 
             OnResponse(result);
+            Finish();
         }
 
         protected static CacheEntry GetCacheEntry(NetworkResponse response)
@@ -170,6 +186,7 @@ namespace Pierce.Net
 
         public Request Add(Request request)
         {
+            request.RequestQueue = this;
             request.Sequence = Interlocked.Increment(ref sequence);
             Console.WriteLine("Add(): {0}", request);
 
@@ -200,12 +217,32 @@ namespace Pierce.Net
             return request;
         }
 
+        public void Finish(Request request)
+        {
+            if (request.ShouldCache)
+            {
+                var key = request.Uri;
+                List<Request> list;
+
+                lock (_requests)
+                {
+                    if (_requests.TryGetValue(key, out list) &&
+                        _requests.Remove(key) &&
+                        list != null)
+                    {
+                        list.ForEach(_cache_queue.Add);
+                    }
+                }
+            }
+        }
+
         private void CacheConsumer()
         {
             foreach (var request in _cache_queue.GetConsumingEnumerable())
             {
                 if (request.IsCanceled)
                 {
+                    request.Finish();
                     continue;
                 }
 
@@ -224,7 +261,6 @@ namespace Pierce.Net
                 });
 
                 request.SetResponse(response);
-                Complete(request);
             }
         }
 
@@ -236,6 +272,7 @@ namespace Pierce.Net
 
                 if (request.IsCanceled)
                 {
+                    request.Finish();
                     continue;
                 }
 
@@ -248,26 +285,6 @@ namespace Pierce.Net
                 }
 
                 request.SetResponse(response);
-                Complete(request);
-            }
-        }
-
-        private void Complete(Request request)
-        {
-            if (request.ShouldCache)
-            {
-                var key = request.Uri;
-                List<Request> list;
-
-                lock (_requests)
-                {
-                    if (_requests.TryGetValue(key, out list) &&
-                        _requests.Remove(key) &&
-                        list != null)
-                    {
-                        list.ForEach(_cache_queue.Add);
-                    }
-                }
             }
         }
     }
