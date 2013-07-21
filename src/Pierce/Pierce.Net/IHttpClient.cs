@@ -171,7 +171,9 @@ namespace Pierce.Net
     {
         private readonly BlockingCollection<Request> _cache_queue = new BlockingCollection<Request>();
         private readonly BlockingCollection<Request> _network_queue = new BlockingCollection<Request>();
-        private readonly IDictionary<object, List<Request>> _requests = new Dictionary<object, List<Request>>();
+
+        private readonly ISet<Request> _requests = new HashSet<Request>();
+        private readonly IDictionary<object, List<Request>> _active_requests = new Dictionary<object, List<Request>>();
 
         private readonly Cache _cache;
         private readonly Network _network;
@@ -195,25 +197,30 @@ namespace Pierce.Net
             request.Sequence = Interlocked.Increment(ref sequence);
             Console.WriteLine("Add(): {0}", request);
 
+            lock (_requests)
+            {
+                _requests.Add(request);
+            }
+
             if (!request.ShouldCache)
             {
                 _network_queue.Add(request);
                 return request;
             }
 
-            lock (_requests)
+            lock (_active_requests)
             {
                 List<Request> list;
-                if (_requests.TryGetValue(request.CacheKey, out list))
+                if (_active_requests.TryGetValue(request.CacheKey, out list))
                 {
                     list = list ?? new List<Request>();
                     list.Add(request);
 
-                    _requests[request.CacheKey] = list;
+                    _active_requests[request.CacheKey] = list;
                 }
                 else
                 {
-                    _requests[request.CacheKey] = null;
+                    _active_requests[request.CacheKey] = null;
                     _cache_queue.Add(request);
                 }                
             }
@@ -223,14 +230,19 @@ namespace Pierce.Net
 
         public void Finish(Request request)
         {
+            lock (_requests)
+            {
+                _requests.Remove(request);
+            }
+
             if (request.ShouldCache)
             {
                 List<Request> list;
 
-                lock (_requests)
+                lock (_active_requests)
                 {
-                    if (_requests.TryGetValue(request.CacheKey, out list) &&
-                        _requests.Remove(request.CacheKey) &&
+                    if (_active_requests.TryGetValue(request.CacheKey, out list) &&
+                        _active_requests.Remove(request.CacheKey) &&
                         list != null)
                     {
                         list.ForEach(_cache_queue.Add);
