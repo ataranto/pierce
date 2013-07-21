@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading;
+using System.Text;
 
 namespace Pierce.Net
 {
@@ -18,6 +19,7 @@ namespace Pierce.Net
     {
         public Request()
         {
+            Priority = Priority.Normal;
             ShouldCache = true;
         }
 
@@ -39,26 +41,35 @@ namespace Pierce.Net
         }
     }
 
+
     public class Response
     {
         public byte[] Data { get; set; }
-        public Exception Exception { get; set; }
+    }
+
+    public class NetworkResponse
+    {
+        public int StatusCode { get; set; }
+        public byte[] Data { get; set; }
+        public WebHeaderCollection Headers { get; set; }
+        public bool NotModified { get; set; }
     }
 
     public class Network
     {
-        public Response Execute(Request request)
+        public NetworkResponse Execute(Request request)
         {
-            var response = new Response();
+            var response = new NetworkResponse();
 
             try
             {
                 var client = new WebClient();
                 response.Data = client.DownloadData(request.Uri);
+                response.StatusCode = 200;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                response.Exception = ex;
+                response.StatusCode = 500;
             }
 
             return response;
@@ -173,13 +184,14 @@ namespace Pierce.Net
                     continue;
                 }
 
-                var response = _network.Execute(request);
+                var network_response = _network.Execute(request);
 
                 if (request.ShouldCache)
                 {
-                    _cache.Put(request.Uri, response.Data);
+                    _cache.Put(request.Uri, network_response.Data);
                 }
 
+                var response = new Response { Data = network_response.Data };
                 Complete(request, response);
             }
         }

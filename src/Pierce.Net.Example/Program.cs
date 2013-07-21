@@ -30,25 +30,11 @@ namespace Pierce.Net.Example
                     Uri = uri,
                     OnResponse = response =>
                     {
-                        var @string = Encoding.UTF8.GetString(response.Data).Substring(0, 64);
-                        //Console.WriteLine("{0}: {1}", request_number, @string);
-                        Console.WriteLine("received response {0}", request_number);
+                        string result = Encoding.UTF8.GetString(response.Data);
+                        Console.WriteLine("received response {0}, {1}", request_number, result.Substring(0, 48));
                     },
                 });
             };
-
-            // cancel
-            var request = new Request
-            {
-                Uri = google,
-                OnResponse = response =>
-                {
-                    Console.WriteLine("cancel response");
-                },
-            };
-            request.Cancel();
-
-            queue.Add(request);
 
             Console.ReadLine();
         }
