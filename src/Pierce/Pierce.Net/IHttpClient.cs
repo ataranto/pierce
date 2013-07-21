@@ -1,11 +1,11 @@
 using System;
-using System.Net;
-using System.Threading.Tasks;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Threading;
-using System.Text;
 using System.Linq;
+using System.Net;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Pierce.Net
 {
@@ -113,15 +113,15 @@ namespace Pierce.Net
 
     public class NetworkResponse
     {
-        public int StatusCode { get; set; }
+        public HttpStatusCode StatusCode { get; set; }
         public byte[] Data { get; set; }
         public WebHeaderCollection Headers { get; set; }
-        public bool NotModified { get; set; }
+        //public bool NotModified { get; set; }
     }
 
-    public class Network
+    public class HttpClient
     {
-        public NetworkResponse Execute(Request request)
+        public NetworkResponse Execute(Request request, WebHeaderCollection cache_headers)
         {
             var response = new NetworkResponse();
 
@@ -129,20 +129,48 @@ namespace Pierce.Net
             {
                 var client = new WebClient();
                 response.Data = client.DownloadData(request.Uri);
-                response.StatusCode = 200;
+                response.StatusCode = HttpStatusCode.OK;
             }
-            catch (Exception)
+            catch
             {
-                response.StatusCode = 500;
+                response.StatusCode = HttpStatusCode.InternalServerError;
             }
 
             return response;
         }
     }
 
+    public class Network
+    {
+        private readonly HttpClient _client;
+
+        public Network(HttpClient client = null)
+        {
+            _client = client ?? new HttpClient();
+        }
+
+        public NetworkResponse Execute(Request request)
+        {
+            try
+            {
+                // XXX: need request.CacheEntry, add cache headers
+                var cache_headers = new WebHeaderCollection();
+                var response = _client.Execute(request, cache_headers);
+
+                return response;
+            }
+            catch
+            {
+                throw;
+            }
+        }
+    }
+
     public class CacheEntry
     {
         public byte[] Data { get; set; }
+        public string ETag { get; set; }
+        public long ServerDate { get; set; }
         public WebHeaderCollection Headers { get; set; }
     }
 
@@ -314,15 +342,23 @@ namespace Pierce.Net
                     continue;
                 }
 
-                var network_response = _network.Execute(request);
-                var response = request.Parse(network_response);
-
-                if (request.ShouldCache && response.CacheEntry != null)
+                try
                 {
-                    _cache[request.Uri] = response.CacheEntry;
-                }
+                    var network_response = _network.Execute(request);
+                    var response = request.Parse(network_response);
 
-                request.SetResponse(response);
+                    if (request.ShouldCache && response.CacheEntry != null)
+                    {
+                        _cache[request.Uri] = response.CacheEntry;
+                    }
+
+                    request.SetResponse(response);
+                }
+                catch (Exception ex)
+                {
+                    // XXX
+                    Console.WriteLine(ex);
+                }
             }
         }
     }
