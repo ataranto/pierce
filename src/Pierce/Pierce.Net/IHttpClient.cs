@@ -30,6 +30,11 @@ namespace Pierce.Net
         public bool ShouldCache { get; set; }
         public bool IsCanceled { get; private set; }
 
+        public virtual object CacheKey
+        {
+            get { return Uri; }
+        }
+
         public abstract Response Parse(NetworkResponse response);
         public abstract void SetResponse(Response response);
 
@@ -166,7 +171,7 @@ namespace Pierce.Net
     {
         private readonly BlockingCollection<Request> _cache_queue = new BlockingCollection<Request>();
         private readonly BlockingCollection<Request> _network_queue = new BlockingCollection<Request>();
-        private readonly IDictionary<Uri, List<Request>> _requests = new Dictionary<Uri, List<Request>>();
+        private readonly IDictionary<object, List<Request>> _requests = new Dictionary<object, List<Request>>();
 
         private readonly Cache _cache;
         private readonly Network _network;
@@ -196,20 +201,19 @@ namespace Pierce.Net
                 return request;
             }
 
-            var key = request.Uri;
             lock (_requests)
             {
                 List<Request> list;
-                if (_requests.TryGetValue(key, out list))
+                if (_requests.TryGetValue(request.CacheKey, out list))
                 {
                     list = list ?? new List<Request>();
                     list.Add(request);
 
-                    _requests[key] = list;
+                    _requests[request.CacheKey] = list;
                 }
                 else
                 {
-                    _requests[key] = null;
+                    _requests[request.CacheKey] = null;
                     _cache_queue.Add(request);
                 }                
             }
@@ -221,13 +225,12 @@ namespace Pierce.Net
         {
             if (request.ShouldCache)
             {
-                var key = request.Uri;
                 List<Request> list;
 
                 lock (_requests)
                 {
-                    if (_requests.TryGetValue(key, out list) &&
-                        _requests.Remove(key) &&
+                    if (_requests.TryGetValue(request.CacheKey, out list) &&
+                        _requests.Remove(request.CacheKey) &&
                         list != null)
                     {
                         list.ForEach(_cache_queue.Add);
@@ -246,8 +249,7 @@ namespace Pierce.Net
                     continue;
                 }
 
-                var key = request.Uri;
-                CacheEntry entry = _cache[key];
+                CacheEntry entry = _cache[request.CacheKey];
                 if (entry == null)
                 {
                     _network_queue.Add(request);

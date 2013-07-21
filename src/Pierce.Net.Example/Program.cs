@@ -25,14 +25,21 @@ namespace Pierce.Net.Example
                     google :
                     yahoo;
 
-                queue.Add(new StringRequest
+                var request = new StringRequest
                 {
                     Uri = uri,
                     OnResponse = response =>
                     {
                         Console.WriteLine("received response {0}, {1}", request_number, response.Substring(0, 48));
                     },
-                });
+                };
+
+                queue.Add(request);
+
+                if (x % 3 == 0)
+                {
+                    request.Cancel();
+                }
             };
 
             Console.ReadLine();
