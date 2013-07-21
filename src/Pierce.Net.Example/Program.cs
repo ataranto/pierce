@@ -37,6 +37,19 @@ namespace Pierce.Net.Example
                 });
             };
 
+            // cancel
+            var request = new Request
+            {
+                Uri = google,
+                OnResponse = response =>
+                {
+                    Console.WriteLine("cancel response");
+                },
+            };
+            request.Cancel();
+
+            queue.Add(request);
+
             Console.ReadLine();
         }
     }

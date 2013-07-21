@@ -11,6 +11,7 @@ stuff that volley does
 - network image view
 - request queue has bulk cancellation token
     mRequestQueue.cancelAll(this); // 'this' is the token
+- event logging of request state transitions
 
 - request queue instance
 - JsonObjectRequest (included request type)

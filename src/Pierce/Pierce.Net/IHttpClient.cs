@@ -7,6 +7,13 @@ using System.Threading;
 
 namespace Pierce.Net
 {
+    public enum Priority
+    {
+        Low,
+        Normal,
+        High,
+    }
+
     public class Request
     {
         public Request()
@@ -15,9 +22,16 @@ namespace Pierce.Net
         }
 
         public Uri Uri { get; set; }
+        public Priority Priority { get; set; }
         public int Sequence { get; set; }
         public bool ShouldCache { get; set; }
+        public bool IsCanceled { get; private set; }
         public Action<Response> OnResponse { get; set; }
+
+        public void Cancel()
+        {
+            IsCanceled = true;
+        }
 
         public override string ToString()
         {
@@ -130,6 +144,11 @@ namespace Pierce.Net
         {
             foreach (var request in _cache_queue.GetConsumingEnumerable())
             {
+                if (request.IsCanceled)
+                {
+                    continue;
+                }
+
                 byte[] data;
                 if (_cache.TryGet(request.Uri, out data))
                 {
@@ -148,6 +167,11 @@ namespace Pierce.Net
             foreach (var request in _network_queue.GetConsumingEnumerable())
             {
                 Console.WriteLine("NetworkConsumer: {0}", request);
+
+                if (request.IsCanceled)
+                {
+                    continue;
+                }
 
                 var response = _network.Execute(request);
 
