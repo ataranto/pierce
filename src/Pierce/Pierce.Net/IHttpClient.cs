@@ -41,7 +41,6 @@ namespace Pierce.Net
         }
     }
 
-
     public class Response
     {
         public byte[] Data { get; set; }
@@ -76,23 +75,31 @@ namespace Pierce.Net
         }
     }
 
+    public class CacheEntry
+    {
+        public byte[] Data { get; set; }
+    }
+
     public class Cache
     {
-        private readonly IDictionary<object, byte[]> _dictionary = new Dictionary<object, byte[]>();
+        private readonly IDictionary<object, CacheEntry> _dictionary = new Dictionary<object, CacheEntry>();
 
-        public bool TryGet(object key, out byte[] entry)
+        public CacheEntry this [object key]
         {
-            lock (_dictionary)
+            get
             {
-                return _dictionary.TryGetValue(key, out entry);
+                lock (_dictionary)
+                {
+                    return _dictionary.ContainsKey(key) ? _dictionary[key] : null;
+                }
             }
-        }
 
-        public void Put(object key, byte[] entry)
-        {
-            lock (_dictionary)
+            set
             {
-                _dictionary[key] = entry;
+                lock (_dictionary)
+                {
+                    _dictionary[key] = value;
+                }
             }
         }
     }
@@ -160,16 +167,16 @@ namespace Pierce.Net
                     continue;
                 }
 
-                byte[] data;
-                if (_cache.TryGet(request.Uri, out data))
-                {
-                    var response = new Response { Data = data };
-                    Complete(request, response);
-                }
-                else
+                var key = request.Uri;
+                CacheEntry entry = _cache[key];
+                if (entry == null)
                 {
                     _network_queue.Add(request);
+                    continue;
                 }
+
+                var response = new Response { Data = entry.Data };
+                Complete(request, response);
             }
         }
 
@@ -188,7 +195,7 @@ namespace Pierce.Net
 
                 if (request.ShouldCache)
                 {
-                    _cache.Put(request.Uri, network_response.Data);
+                    _cache[request.Uri] = new CacheEntry { Data = network_response.Data };
                 }
 
                 var response = new Response { Data = network_response.Data };
