@@ -331,7 +331,7 @@ namespace Pierce.Net
         private readonly Cache _cache;
         private readonly Network _network;
 
-        private int sequence;
+        private int _sequence;
 
         public RequestQueue(Cache cache = null, Network network = null)
         {
@@ -347,7 +347,7 @@ namespace Pierce.Net
         public Request Add(Request request)
         {
             request.RequestQueue = this;
-            request.Sequence = Interlocked.Increment(ref sequence);
+            request.Sequence = Interlocked.Increment(ref _sequence);
             Console.WriteLine("Add(): {0}", request);
 
             lock (_requests)
