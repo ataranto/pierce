@@ -488,7 +488,7 @@ namespace Pierce.Net
 
                     if (request.ShouldCache && response.CacheEntry != null)
                     {
-                        _cache[request.Uri] = response.CacheEntry;
+                        _cache[request.CacheKey] = response.CacheEntry;
                     }
 
                     request.SetResponse(response);
