@@ -17,6 +17,16 @@ namespace Pierce.Net
         High,
     }
 
+    public class Error : Exception
+    {
+        public NetworkResponse Response { get; set; }
+
+        public Error(Exception exception)
+        {
+
+        }
+    }
+
     public abstract class Request
     {
         public Request()
@@ -33,6 +43,7 @@ namespace Pierce.Net
         public RequestQueue RequestQueue { get; set; }
         public bool ShouldCache { get; set; }
         public bool IsCanceled { get; private set; }
+        public Action<Error> OnError { get; set; }
 
         public virtual object CacheKey
         {
@@ -45,6 +56,18 @@ namespace Pierce.Net
         public void Cancel()
         {
             IsCanceled = true;
+        }
+
+        public void SetError(Error error)
+        {
+            if (IsCanceled)
+            {
+                Finish();
+                return;
+            }
+
+            OnError(error);
+            Finish();
         }
 
         public void Finish()
@@ -75,11 +98,26 @@ namespace Pierce.Net
                 return;
             }
 
-            var typed_response = response as Response<T>;
-            var result = typed_response.Result;
+            if (response.IsSuccess)
+            {
+                var typed_response = response as Response<T>;
+                var result = typed_response.Result;
 
-            OnResponse(result);
-            Finish();
+                OnResponse(result);
+            }
+            else
+            {
+                OnError(response.Error);
+            }
+
+            if (response.IsIntermediate)
+            {
+                // addMarker("intermediate-response")
+            }
+            else
+            {
+                Finish();
+            }
 
             if (action != null)
             {
@@ -179,7 +217,13 @@ namespace Pierce.Net
     public class Response
     {
         public CacheEntry CacheEntry { get; set; }
+        public Error Error { get; set; }
         public bool IsIntermediate { get; set; }
+
+        public bool IsSuccess
+        {
+            get { return Error == null; }
+        }
     }
 
     public class Response<T> : Response
@@ -493,10 +537,14 @@ namespace Pierce.Net
 
                     request.SetResponse(response);
                 }
+                catch (Error ex)
+                {
+                    request.SetError(ex);
+                }
                 catch (Exception ex)
                 {
-                    // XXX
-                    Console.WriteLine(ex);
+                    var error = new Error(ex);
+                    request.SetError(error);
                 }
             }
         }

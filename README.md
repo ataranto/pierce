@@ -3,7 +3,7 @@
 http://www.youtube.com/watch?v=yhv8l9F44qo
 
 stuff that volley does
-- [ ] error handling, OnError()
+- [x] error handling, OnError()
 - [x] caching
 - [ ] retry
 - [x] parallel requests
