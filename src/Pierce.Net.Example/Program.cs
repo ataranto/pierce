@@ -10,7 +10,7 @@ namespace Pierce.Net.Example
         {
             var queue = new RequestQueue();
 
-            var google = new Uri("XXXhttp://www.google.com/");
+            var google = new Uri("http://www.google.com/");
             var songkick = new Uri("http://api.songkick.com/api/3.0/events.json?location=clientip&apikey=G2KCF6q91g23Q6Zh");
 
             for (var x = 1; x <= 16; x++)

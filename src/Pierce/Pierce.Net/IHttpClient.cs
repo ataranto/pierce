@@ -7,6 +7,7 @@ using System.Net;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.IO;
 
 namespace Pierce.Net
 {
@@ -21,10 +22,20 @@ namespace Pierce.Net
     {
         public NetworkResponse Response { get; set; }
 
+        public Error()
+        {
+
+        }
+
         public Error(Exception exception)
         {
 
         }
+    }
+
+    public class TimeoutError : Error
+    {
+
     }
 
     public class RetryPolicy
@@ -60,6 +71,7 @@ namespace Pierce.Net
         {
             Priority = Priority.Normal;
             ShouldCache = true;
+            RetryPolicy = new RetryPolicy();
         }
 
         public Uri Uri { get; set; }
@@ -70,6 +82,7 @@ namespace Pierce.Net
         public RequestQueue RequestQueue { get; set; }
         public bool ShouldCache { get; set; }
         public bool IsCanceled { get; private set; }
+        public RetryPolicy RetryPolicy { get; set; }
         public Action<Error> OnError { get; set; }
 
         public virtual object CacheKey
@@ -266,6 +279,24 @@ namespace Pierce.Net
         //public bool NotModified { get; set; }
     }
 
+    public class TimeoutWebClient : WebClient
+    {
+        private readonly int _timeout_ms;
+
+        public TimeoutWebClient(int timeout_ms)
+        {
+            _timeout_ms = timeout_ms;
+        }
+
+        protected override WebRequest GetWebRequest(Uri address)
+        {
+            var request = base.GetWebRequest(address);
+            request.Timeout = _timeout_ms;
+
+            return request;
+        }
+    }
+
     public class HttpClient
     {
         public NetworkResponse Execute(Request request, WebHeaderCollection cache_headers)
@@ -274,14 +305,19 @@ namespace Pierce.Net
 
             try
             {
-                var client = new WebClient();
+                var timeout_ms = request.RetryPolicy.CurrentTimeoutMs;
+                var client = new TimeoutWebClient(timeout_ms);
+
                 response.Data = client.DownloadData(request.Uri);
                 response.StatusCode = HttpStatusCode.OK;
                 response.Headers = client.ResponseHeaders;
             }
-            catch
+            catch (WebException ex)
             {
-                response.StatusCode = HttpStatusCode.InternalServerError;
+                if (ex.Status == WebExceptionStatus.Timeout)
+                {
+                    throw new TimeoutError();
+                }
             }
 
             return response;
@@ -299,28 +335,60 @@ namespace Pierce.Net
 
         public NetworkResponse Execute(Request request)
         {
-            try
+            while (true)
             {
-                var cache_headers = GetCacheHeaders(request.CacheEntry);
-                var response = _client.Execute(request, cache_headers);
-
-                if (response.StatusCode == HttpStatusCode.NotModified)
+                try
                 {
-                    return new NetworkResponse
-                    {
-                        StatusCode = response.StatusCode,
-                        Data = request.CacheEntry.Data,
-                        Headers = response.Headers,
-                    };
-                }
+                    var cache_headers = GetCacheHeaders(request.CacheEntry);
+                    var response = _client.Execute(request, cache_headers);
 
-                return response;
-            }
-            catch
-            {
-                throw;
+                    if (response.StatusCode == HttpStatusCode.NotModified)
+                    {
+                        return new NetworkResponse
+                        {
+                            StatusCode = response.StatusCode,
+                            Data = request.CacheEntry.Data,
+                            Headers = response.Headers,
+                        };
+                    }
+
+                    if (response.StatusCode != HttpStatusCode.OK &&
+                        response.StatusCode != HttpStatusCode.NoContent)
+                    {
+                        throw new IOException();
+                    }
+
+                    return response;
+                }
+                catch (TimeoutError error)
+                {
+                    AttemptRetry(request, error);
+                }
+                catch (IOException ex)
+                {
+                    throw; // XXX logic
+                }
             }
         }
+
+        private static void AttemptRetry(Request request, Error error)
+        {
+            var retry_policy = request.RetryPolicy;
+            var timeout_ms = retry_policy.CurrentTimeoutMs;
+
+            try
+            {
+                retry_policy.Retry(error);
+            }
+            catch (Error)
+            {
+                // log timeout giveup
+                throw;
+            }
+
+            // log timeout retry
+        }
+
 
         private static WebHeaderCollection GetCacheHeaders(CacheEntry entry)
         {
