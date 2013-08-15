@@ -67,6 +67,8 @@ namespace Pierce.Net
 
     public abstract class Request
     {
+        private readonly MarkerLog _marker_log = new MarkerLog();
+
         public Request()
         {
             Priority = Priority.Normal;
@@ -93,34 +95,48 @@ namespace Pierce.Net
         public abstract Response Parse(NetworkResponse response);
         public abstract void SetResponse(Response response, Action action = null);
 
+        public void AddMarker(string name)
+        {
+            _marker_log.Add(name);
+        }
+
         public void Cancel()
         {
             IsCanceled = true;
         }
 
+        // XXX: need to combine some of this logic with Request<T>.SetResponse()
+        // once the ResponseDelivery mechanism is implemented
         public void SetError(Error error)
         {
             if (IsCanceled)
             {
-                Finish();
+                Finish("canceled-at-delivery");
                 return;
             }
 
             OnError(error);
-            Finish();
+            Finish("done");
         }
 
-        public void Finish()
+        public void Finish(string marker_name)
         {
             if (RequestQueue != null)
             {
                 RequestQueue.Finish(this);
             }
+
+            AddMarker(marker_name);
+            _marker_log.Finish(this.ToString());
         }
 
         public override string ToString()
         {
-            return String.Format("{0}:{1}", Sequence, Uri);
+            return
+                IsCanceled ? "[X] " : "[ ] " +
+                Uri + " " +
+                Priority + " " +
+                Sequence;
         }
     }
 
@@ -134,7 +150,7 @@ namespace Pierce.Net
         {
             if (IsCanceled)
             {
-                Finish();
+                Finish("canceled-at-delivery");
                 return;
             }
 
@@ -152,11 +168,11 @@ namespace Pierce.Net
 
             if (response.IsIntermediate)
             {
-                // addMarker("intermediate-response")
+                AddMarker("intermediate-response");
             }
             else
             {
-                Finish();
+                Finish("done");
             }
 
             if (action != null)
@@ -379,14 +395,13 @@ namespace Pierce.Net
             try
             {
                 retry_policy.Retry(error);
+                request.AddMarker(String.Format("retry [timeout={0}]", timeout_ms));
             }
             catch (Error)
             {
-                // log timeout giveup
+                request.AddMarker(String.Format("timeout-giveup [timeout={0}]", timeout_ms));
                 throw;
             }
-
-            // log timeout retry
         }
 
 
@@ -485,14 +500,14 @@ namespace Pierce.Net
 
         public Request Add(Request request)
         {
-            request.RequestQueue = this;
-            request.Sequence = Interlocked.Increment(ref _sequence);
-            Console.WriteLine("Add(): {0}", request);
-
             lock (_requests)
             {
                 _requests.Add(request);
             }
+
+            request.RequestQueue = this;
+            request.Sequence = Interlocked.Increment(ref _sequence);
+            request.AddMarker("add-to-queue");
 
             if (!request.ShouldCache)
             {
@@ -568,31 +583,38 @@ namespace Pierce.Net
         {
             foreach (var request in _cache_queue.GetConsumingEnumerable())
             {
+                request.AddMarker("cache-queue-dequeue");
+
                 if (request.IsCanceled)
                 {
-                    request.Finish();
+                    request.Finish("cache-discard-canceled");
                     continue;
                 }
 
                 CacheEntry entry = _cache[request.CacheKey];
                 if (entry == null)
                 {
+                    request.AddMarker("cache-miss");
                     _network_queue.Add(request);
                     continue;
                 }
 
                 if (entry.IsExpired)
                 {
+                    request.AddMarker("cache-hit-expired");
                     request.CacheEntry = entry;
                     _network_queue.Add(request);
                     continue;
                 }
 
+                request.AddMarker("cache-hit");
                 var response = request.Parse(new NetworkResponse
                 {
                     Data = entry.Data,
                     Headers = entry.Headers,
                 });
+
+                request.AddMarker("cache-hit-parsed");
 
                 if (!entry.ShouldRefresh)
                 {
@@ -600,6 +622,7 @@ namespace Pierce.Net
                 }
                 else
                 {
+                    request.AddMarker("cache-hit-refresh-needed");
                     request.CacheEntry = entry;
                     response.IsIntermediate = true;
 
@@ -612,22 +635,33 @@ namespace Pierce.Net
         {
             foreach (var request in _network_queue.GetConsumingEnumerable())
             {
-                Console.WriteLine("NetworkConsumer: {0}", request);
+                request.AddMarker("network-dequeue");
 
                 if (request.IsCanceled)
                 {
-                    request.Finish();
+                    request.Finish("network-discard-canceled");
                     continue;
                 }
 
                 try
                 {
                     var network_response = _network.Execute(request);
+                    request.AddMarker("network-http-complete");
+
+                    /* XXX
+                    if (networkResponse.notModified && request.hasHadResponseDelivered()) {
+                        request.finish("not-modified");
+                        continue;
+                    }
+                    */
+
                     var response = request.Parse(network_response);
+                    request.AddMarker("network-parse-complete");
 
                     if (request.ShouldCache && response.CacheEntry != null)
                     {
                         _cache[request.CacheKey] = response.CacheEntry;
+                        request.AddMarker("network-cache-written");
                     }
 
                     request.SetResponse(response);
@@ -642,6 +676,65 @@ namespace Pierce.Net
                     request.SetError(error);
                 }
             }
+        }
+    }
+
+    public class MarkerLog
+    {
+        private class Marker
+        {
+            public string Name { get; set; }
+            public int ThreadId { get; set; }
+            public long Time { get; set; }
+        }
+
+        private readonly List<Marker> _markers = new List<Marker>();
+
+        public void Add(string name)
+        {
+            var marker = new Marker
+            {
+                Name = name,
+                ThreadId = Thread.CurrentThread.ManagedThreadId,
+                Time = DateTime.Now.Ticks,
+            };
+
+            lock (_markers)
+            {
+                _markers.Add(marker);
+            }
+        }
+
+        // XXX: thread safety lock (_
+        public void Finish(string header)
+        {
+            var duration = GetDuration();
+
+            // XXX check log duration threshold (once we have one)
+            Console.WriteLine(@"({0:ss\.ffff} seconds) {1}", duration, header);
+
+            var previous_time = _markers.First().Time;
+            _markers.ForEach(marker =>
+            {
+                duration = new TimeSpan(marker.Time - previous_time);
+                previous_time = marker.Time;
+
+                Console.WriteLine("  {0:ss\\.ffff} [{1:00}] {2}",
+                    duration, marker.ThreadId, marker.Name);
+            });
+        }
+
+        private TimeSpan GetDuration()
+        {
+            if (_markers.Count == 0)
+            {
+                return TimeSpan.Zero;
+            }
+
+            var first = _markers.First().Time;
+            var last = _markers.Last().Time;
+
+            return new TimeSpan(last - first);
         }
     }
 }

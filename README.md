@@ -8,6 +8,7 @@ stuff that volley does
 - [x] retry
 - [x] parallel requests
 - [ ] request priority
+- [ ] response delivery mechanism (ResponseDelivery)
 - [x] request cancellation
 - [x] bulk cancellation token
 - [ ] event logging of request state transitions
