@@ -38,9 +38,13 @@
     <Compile Include="IView.cs" />
     <Compile Include="Presenter.cs" />
     <Compile Include="Pierce.Net\IHttpClient.cs" />
+    <Compile Include="Pierce.Logging\ILog.cs" />
+    <Compile Include="Pierce.Logging\ConsoleLog.cs" />
+    <Compile Include="Pierce.Logging\MarkerLog.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
     <Folder Include="Pierce.Net\" />
+    <Folder Include="Pierce.Logging\" />
   </ItemGroup>
 </Project>

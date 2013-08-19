@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.IO;
+using Pierce.Logging;
 
 namespace Pierce.Net
 {
@@ -34,6 +35,11 @@ namespace Pierce.Net
     }
 
     public class TimeoutError : Error
+    {
+
+    }
+
+    public class ConnectionError : Error
     {
 
     }
@@ -121,13 +127,15 @@ namespace Pierce.Net
 
         public void Finish(string marker_name)
         {
-            if (RequestQueue != null)
+            if (RequestQueue == null)
             {
-                RequestQueue.Finish(this);
+                return;
             }
 
+            RequestQueue.Finish(this);
+
             AddMarker(marker_name);
-            _marker_log.Finish(this.ToString());
+            _marker_log.Finish(RequestQueue.Log, this.ToString());
         }
 
         public override string ToString()
@@ -342,10 +350,17 @@ namespace Pierce.Net
 
     public class Network
     {
+        private readonly ILog _log;
         private readonly HttpClient _client;
 
-        public Network(HttpClient client = null)
+        public Network(ILog log, HttpClient client = null)
         {
+            if (log == null)
+            {
+                new ArgumentNullException("log");
+            }
+
+            _log = log;
             _client = client ?? new HttpClient();
         }
 
@@ -353,10 +368,12 @@ namespace Pierce.Net
         {
             while (true)
             {
+                NetworkResponse response = null;
+
                 try
                 {
                     var cache_headers = GetCacheHeaders(request.CacheEntry);
-                    var response = _client.Execute(request, cache_headers);
+                    response = _client.Execute(request, cache_headers);
 
                     if (response.StatusCode == HttpStatusCode.NotModified)
                     {
@@ -382,6 +399,12 @@ namespace Pierce.Net
                 }
                 catch (IOException ex)
                 {
+                    if (response == null)
+                    {
+                        throw new ConnectionError();
+                    }
+
+                    _log.Error("Unexpected response code {0} for {1}", response.StatusCode, request.Uri);
                     throw; // XXX logic
                 }
             }
@@ -487,16 +510,19 @@ namespace Pierce.Net
 
         private int _sequence;
 
-        public RequestQueue(Cache cache = null, Network network = null)
+        public RequestQueue(ILog log = null, Cache cache = null, Network network = null)
         {
+            Log = log ?? new ConsoleLog { Tag = GetType().Namespace };
             _cache = cache ?? new Cache();
-            _network = network ?? new Network();
+            _network = network ?? new Network(Log);
 
             Task.Factory.StartNew(CacheConsumer);
 
             Task.Factory.StartNew(NetworkConsumer);
             Task.Factory.StartNew(NetworkConsumer);
         }
+
+        public ILog Log { get; private set; }
 
         public Request Add(Request request)
         {
@@ -672,69 +698,12 @@ namespace Pierce.Net
                 }
                 catch (Exception ex)
                 {
+                    Log.Error(ex, "Exception");
+
                     var error = new Error(ex);
                     request.SetError(error);
                 }
             }
-        }
-    }
-
-    public class MarkerLog
-    {
-        private class Marker
-        {
-            public string Name { get; set; }
-            public int ThreadId { get; set; }
-            public long Time { get; set; }
-        }
-
-        private readonly List<Marker> _markers = new List<Marker>();
-
-        public void Add(string name)
-        {
-            var marker = new Marker
-            {
-                Name = name,
-                ThreadId = Thread.CurrentThread.ManagedThreadId,
-                Time = DateTime.Now.Ticks,
-            };
-
-            lock (_markers)
-            {
-                _markers.Add(marker);
-            }
-        }
-
-        // XXX: thread safety lock (_
-        public void Finish(string header)
-        {
-            var duration = GetDuration();
-
-            // XXX check log duration threshold (once we have one)
-            Console.WriteLine(@"({0:ss\.ffff} seconds) {1}", duration, header);
-
-            var previous_time = _markers.First().Time;
-            _markers.ForEach(marker =>
-            {
-                duration = new TimeSpan(marker.Time - previous_time);
-                previous_time = marker.Time;
-
-                Console.WriteLine("  {0:ss\\.ffff} [{1:00}] {2}",
-                    duration, marker.ThreadId, marker.Name);
-            });
-        }
-
-        private TimeSpan GetDuration()
-        {
-            if (_markers.Count == 0)
-            {
-                return TimeSpan.Zero;
-            }
-
-            var first = _markers.First().Time;
-            var last = _markers.Last().Time;
-
-            return new TimeSpan(last - first);
         }
     }
 }
