@@ -141,7 +141,7 @@ namespace Pierce.Net
         public override string ToString()
         {
             return
-                IsCanceled ? "[X] " : "[ ] " +
+                (IsCanceled ? "[X] " : "[ ] ") +
                 Uri + " " +
                 Priority + " " +
                 Sequence;
