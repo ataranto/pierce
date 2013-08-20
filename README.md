@@ -8,10 +8,11 @@ stuff that volley does
 - [x] retry
 - [x] parallel requests
 - [ ] request priority
-- [ ] response delivery mechanism (ResponseDelivery)
+- [X] response delivery mechanism (ResponseDelivery)
 - [x] request cancellation
 - [x] bulk cancellation token
-- [ ] event logging of request state transitions
+- [x] event logging of request state transitions
+- [ ] 304 not modified response handling
 
 - [ ] network image view
 - [ ] JsonObjectRequest (included request type)

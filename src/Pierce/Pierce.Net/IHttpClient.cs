@@ -12,6 +12,55 @@ using Pierce.Logging;
 
 namespace Pierce.Net
 {
+    public class ResponseDelivery
+    {
+        public void PostResponse(Request request, Response response, Action action = null)
+        {
+            // XXX: mark delivered
+            request.AddMarker("post-response");
+            Deliver(request, response, action);
+        }
+
+        public void PostError(Request request, Error error)
+        {
+            request.AddMarker("post-error");
+            var response = new Response { Error = error };
+            Deliver(request, response);
+        }
+
+        private void Deliver(Request request, Response response, Action action = null)
+        {
+            if (request.IsCanceled)
+            {
+                request.Finish("canceled-at-delivery");
+                return;
+            }
+
+            if (response.IsSuccess)
+            {
+                request.SetResponse(response);
+            }
+            else
+            {
+                request.SetError(response.Error);
+            }
+
+            if (response.IsIntermediate)
+            {
+                request.AddMarker("intermediate-response");
+            }
+            else
+            {
+                request.Finish("done");
+            }
+
+            if (action != null)
+            {
+                action();
+            }
+        }
+    }
+
     public enum Priority
     {
         Low,
@@ -99,7 +148,7 @@ namespace Pierce.Net
         }
 
         public abstract Response Parse(NetworkResponse response);
-        public abstract void SetResponse(Response response, Action action = null);
+        public abstract void SetResponse(Response response);
 
         public void AddMarker(string name)
         {
@@ -111,18 +160,14 @@ namespace Pierce.Net
             IsCanceled = true;
         }
 
-        // XXX: need to combine some of this logic with Request<T>.SetResponse()
-        // once the ResponseDelivery mechanism is implemented
         public void SetError(Error error)
         {
-            if (IsCanceled)
-            {
-                Finish("canceled-at-delivery");
-                return;
-            }
+            var action = OnError;
 
-            OnError(error);
-            Finish("done");
+            if (action != null)
+            {
+                action(error);
+            }
         }
 
         public void Finish(string marker_name)
@@ -154,39 +199,17 @@ namespace Pierce.Net
 
         private static string date_format = "ddd, dd MMM yyyy hh:mm:ss GMT";
 
-        public override sealed void SetResponse(Response response, Action action = null)
+        public override sealed void SetResponse(Response response)
         {
-            if (IsCanceled)
-            {
-                Finish("canceled-at-delivery");
-                return;
-            }
-
-            if (response.IsSuccess)
-            {
-                var typed_response = response as Response<T>;
-                var result = typed_response.Result;
-
-                OnResponse(result);
-            }
-            else
-            {
-                OnError(response.Error);
-            }
-
-            if (response.IsIntermediate)
-            {
-                AddMarker("intermediate-response");
-            }
-            else
-            {
-                Finish("done");
-            }
+            var typed_response = response as Response<T>;
+            var result = typed_response.Result;
+            var action = OnResponse;
 
             if (action != null)
             {
-                action();
+                action(result);
             }
+
         }
 
         // XXX: should be in Response ctor or static Create() method? see Response.success()
@@ -507,14 +530,16 @@ namespace Pierce.Net
 
         private readonly Cache _cache;
         private readonly Network _network;
+        private readonly ResponseDelivery _delivery;
 
         private int _sequence;
 
-        public RequestQueue(ILog log = null, Cache cache = null, Network network = null)
+        public RequestQueue(ILog log = null, Cache cache = null, Network network = null, ResponseDelivery delivery = null)
         {
             Log = log ?? new ConsoleLog { Tag = GetType().Namespace };
             _cache = cache ?? new Cache();
             _network = network ?? new Network(Log);
+            _delivery = delivery ?? new ResponseDelivery();
 
             Task.Factory.StartNew(CacheConsumer);
 
@@ -644,7 +669,7 @@ namespace Pierce.Net
 
                 if (!entry.ShouldRefresh)
                 {
-                    request.SetResponse(response);
+                    _delivery.PostResponse(request, response);
                 }
                 else
                 {
@@ -652,7 +677,7 @@ namespace Pierce.Net
                     request.CacheEntry = entry;
                     response.IsIntermediate = true;
 
-                    request.SetResponse(response, () => _network_queue.Add(request));
+                    _delivery.PostResponse(request, response, () => _network_queue.Add(request));
                 }
             }
         }
@@ -690,18 +715,21 @@ namespace Pierce.Net
                         request.AddMarker("network-cache-written");
                     }
 
-                    request.SetResponse(response);
+                    // XXX: mark delivered
+                    _delivery.PostResponse(request, response);
                 }
                 catch (Error ex)
                 {
-                    request.SetError(ex);
+                    // XXX: improve names of ex and errro var names in this and
+                    // the following catch block
+                    _delivery.PostError(request, ex);
                 }
                 catch (Exception ex)
                 {
                     Log.Error(ex, "Exception");
 
                     var error = new Error(ex);
-                    request.SetError(error);
+                    _delivery.PostError(request, error);
                 }
             }
         }
