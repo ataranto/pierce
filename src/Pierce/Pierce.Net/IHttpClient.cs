@@ -12,23 +12,31 @@ using Pierce.Logging;
 
 namespace Pierce.Net
 {
+    // XXX: ResponseScheduler? "Post" is a javaism
     public class ResponseDelivery
     {
+        private readonly Action<Action> _invoke;
+
+        public ResponseDelivery(Action<Action> invoke = null)
+        {
+            _invoke = invoke ?? (action => action());
+        }
+
         public void PostResponse(Request request, Response response, Action action = null)
         {
             // XXX: mark delivered
             request.AddMarker("post-response");
-            Deliver(request, response, action);
+            _invoke(() => Deliver(request, response, action));
         }
 
         public void PostError(Request request, Error error)
         {
             request.AddMarker("post-error");
             var response = new Response { Error = error };
-            Deliver(request, response);
+            _invoke(() => Deliver(request, response));
         }
 
-        private void Deliver(Request request, Response response, Action action = null)
+        private static void Deliver(Request request, Response response, Action action = null)
         {
             if (request.IsCanceled)
             {
@@ -85,7 +93,7 @@ namespace Pierce.Net
 
     public class TimeoutError : Error
     {
-
+        
     }
 
     public class ConnectionError : Error
@@ -185,11 +193,8 @@ namespace Pierce.Net
 
         public override string ToString()
         {
-            return
-                (IsCanceled ? "[X] " : "[ ] ") +
-                Uri + " " +
-                Priority + " " +
-                Sequence;
+            return String.Format("[{0}] {1} {2} {3}",
+                IsCanceled ? "X" : " ", Uri, Priority, Sequence);
         }
     }
 
@@ -720,8 +725,6 @@ namespace Pierce.Net
                 }
                 catch (Error ex)
                 {
-                    // XXX: improve names of ex and errro var names in this and
-                    // the following catch block
                     _delivery.PostError(request, ex);
                 }
                 catch (Exception ex)
