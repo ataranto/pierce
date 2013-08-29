@@ -37,10 +37,25 @@
     <Compile Include="Syntax.cs" />
     <Compile Include="IView.cs" />
     <Compile Include="Presenter.cs" />
-    <Compile Include="Pierce.Net\IHttpClient.cs" />
     <Compile Include="Pierce.Logging\ILog.cs" />
     <Compile Include="Pierce.Logging\ConsoleLog.cs" />
     <Compile Include="Pierce.Logging\MarkerLog.cs" />
+    <Compile Include="Pierce.Net\ResponseDelivery.cs" />
+    <Compile Include="Pierce.Net\Priority.cs" />
+    <Compile Include="Pierce.Net\Error.cs" />
+    <Compile Include="Pierce.Net\TimeoutError.cs" />
+    <Compile Include="Pierce.Net\ConnectionError.cs" />
+    <Compile Include="Pierce.Net\RetryPolicy.cs" />
+    <Compile Include="Pierce.Net\Request.cs" />
+    <Compile Include="Pierce.Net\StringRequest.cs" />
+    <Compile Include="Pierce.Net\Response.cs" />
+    <Compile Include="Pierce.Net\NetworkResponse.cs" />
+    <Compile Include="Pierce.Net\HttpClient.cs" />
+    <Compile Include="Pierce.Net\Network.cs" />
+    <Compile Include="Pierce.Net\CacheEntry.cs" />
+    <Compile Include="Pierce.Net\Cache.cs" />
+    <Compile Include="Pierce.Net\RequestQueue.cs" />
+    <Compile Include="Pierce.Net\TimeoutWebClient.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
