@@ -24,7 +24,6 @@ namespace Pierce.Net
 
         public void PostResponse(Request request, Response response, Action action = null)
         {
-            // XXX: mark delivered
             request.AddMarker("post-response");
             _invoke(() => Deliver(request, response, action));
         }
@@ -148,6 +147,7 @@ namespace Pierce.Net
         public bool ShouldCache { get; set; }
         public bool IsCanceled { get; private set; }
         public RetryPolicy RetryPolicy { get; set; }
+        public bool ResponseDelievered { get; set; }
         public Action<Error> OnError { get; set; }
 
         public virtual object CacheKey
@@ -328,7 +328,6 @@ namespace Pierce.Net
         public HttpStatusCode StatusCode { get; set; }
         public byte[] Data { get; set; }
         public WebHeaderCollection Headers { get; set; }
-        //public bool NotModified { get; set; }
     }
 
     public class TimeoutWebClient : WebClient
@@ -704,12 +703,12 @@ namespace Pierce.Net
                     var network_response = _network.Execute(request);
                     request.AddMarker("network-http-complete");
 
-                    /* XXX
-                    if (networkResponse.notModified && request.hasHadResponseDelivered()) {
-                        request.finish("not-modified");
+                    if (network_response.StatusCode == HttpStatusCode.NotModified &&
+                        request.ResponseDelievered)
+                    {
+                        request.Finish("not-modified");
                         continue;
                     }
-                    */
 
                     var response = request.Parse(network_response);
                     request.AddMarker("network-parse-complete");
@@ -720,7 +719,7 @@ namespace Pierce.Net
                         request.AddMarker("network-cache-written");
                     }
 
-                    // XXX: mark delivered
+                    request.ResponseDelievered = true;
                     _delivery.PostResponse(request, response);
                 }
                 catch (Error ex)
