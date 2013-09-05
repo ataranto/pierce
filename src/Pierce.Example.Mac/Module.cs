@@ -5,6 +5,7 @@ using Pierce.Example.Containers;
 using Pierce.Example.Models;
 using Pierce.Example.Views;
 using Pierce.Example.Mac.Views;
+using Pierce.Injection;
 
 namespace Pierce.Example.Mac
 {

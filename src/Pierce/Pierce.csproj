@@ -32,11 +32,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Container.cs" />
-    <Compile Include="IContainer.cs" />
-    <Compile Include="Syntax.cs" />
-    <Compile Include="IView.cs" />
-    <Compile Include="Presenter.cs" />
     <Compile Include="Pierce.Logging\ILog.cs" />
     <Compile Include="Pierce.Logging\ConsoleLog.cs" />
     <Compile Include="Pierce.Logging\MarkerLog.cs" />
@@ -56,10 +51,17 @@
     <Compile Include="Pierce.Net\Cache.cs" />
     <Compile Include="Pierce.Net\RequestQueue.cs" />
     <Compile Include="Pierce.Net\TimeoutWebClient.cs" />
+    <Compile Include="Pierce.Injection\Syntax.cs" />
+    <Compile Include="Pierce.Injection\IContainer.cs" />
+    <Compile Include="Pierce.Injection\Container.cs" />
+    <Compile Include="Pierce.UI\Presenter.cs" />
+    <Compile Include="Pierce.UI\IView.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
     <Folder Include="Pierce.Net\" />
     <Folder Include="Pierce.Logging\" />
+    <Folder Include="Pierce.Injection\" />
+    <Folder Include="Pierce.UI\" />
   </ItemGroup>
 </Project>

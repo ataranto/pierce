@@ -42,7 +42,7 @@ Global
 		{FAADE079-A44A-4CBA-A33B-EF2B59192961}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(MonoDevelopProperties) = preSolution
-		StartupItem = src\Pierce.Net.Example\Pierce.Net.Example.csproj
+		StartupItem = src\Pierce.Example.Mac\Pierce.Example.Mac.csproj
 		Policies = $0
 		$0.StandardHeader = $1
 		$1.Text = 

@@ -1,6 +1,6 @@
 using System;
 
-namespace Pierce
+namespace Pierce.UI
 {
     public abstract class Presenter<TView> : IDisposable
     {

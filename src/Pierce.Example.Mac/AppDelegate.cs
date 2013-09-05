@@ -6,6 +6,7 @@ using Pierce.Example.Mac.Views;
 using Pierce.Example.Presenters;
 using System;
 using Ninject;
+using Pierce.Injection;
 
 namespace Pierce.Example.Mac
 {

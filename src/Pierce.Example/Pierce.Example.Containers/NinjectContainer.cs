@@ -1,5 +1,6 @@
 using System;
 using Ninject;
+using Pierce.Injection;
 
 namespace Pierce.Example.Containers
 {
