@@ -57,11 +57,11 @@
     <Compile Include="Pierce.UI\Presenter.cs" />
     <Compile Include="Pierce.UI\IView.cs" />
   </ItemGroup>
-  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
     <Folder Include="Pierce.Net\" />
     <Folder Include="Pierce.Logging\" />
     <Folder Include="Pierce.Injection\" />
     <Folder Include="Pierce.UI\" />
   </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>
