@@ -8,17 +8,17 @@ namespace Pierce.Net
     public class Network
     {
         private readonly ILog _log;
-        private readonly HttpClient _client;
+        private readonly IHttpClient _client;
 
-        public Network(ILog log, HttpClient client = null)
+        public Network(ILog log, IHttpClient client = null)
         {
             if (log == null)
             {
-                new ArgumentNullException("log");
+                throw new ArgumentNullException("log");
             }
 
             _log = log;
-            _client = client ?? new HttpClient();
+            _client = client ?? new WebRequestClient();
         }
 
         public NetworkResponse Execute(Request request)

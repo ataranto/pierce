@@ -11,11 +11,13 @@ namespace Pierce.Net
 
         public Request()
         {
+            Method = RequestMethod.Get;
             Priority = Priority.Normal;
             ShouldCache = true;
             RetryPolicy = new RetryPolicy();
         }
 
+        public string Method { get; set; }
         public Uri Uri { get; set; }
         public Priority Priority { get; set; }
         public int Sequence { get; set; }

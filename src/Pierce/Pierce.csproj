@@ -45,17 +45,18 @@
     <Compile Include="Pierce.Net\StringRequest.cs" />
     <Compile Include="Pierce.Net\Response.cs" />
     <Compile Include="Pierce.Net\NetworkResponse.cs" />
-    <Compile Include="Pierce.Net\HttpClient.cs" />
     <Compile Include="Pierce.Net\Network.cs" />
     <Compile Include="Pierce.Net\CacheEntry.cs" />
     <Compile Include="Pierce.Net\Cache.cs" />
     <Compile Include="Pierce.Net\RequestQueue.cs" />
-    <Compile Include="Pierce.Net\TimeoutWebClient.cs" />
     <Compile Include="Pierce.Injection\Syntax.cs" />
     <Compile Include="Pierce.Injection\IContainer.cs" />
     <Compile Include="Pierce.Injection\Container.cs" />
     <Compile Include="Pierce.UI\Presenter.cs" />
     <Compile Include="Pierce.UI\IView.cs" />
+    <Compile Include="Pierce.Net\IHttpClient.cs" />
+    <Compile Include="Pierce.Net\WebRequestClient.cs" />
+    <Compile Include="Pierce.Net\RequestMethod.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Pierce.Net\" />
