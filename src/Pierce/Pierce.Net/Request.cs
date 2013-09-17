@@ -73,6 +73,11 @@ namespace Pierce.Net
 
         public async Task<T> GetResultAsync()
         {
+            if (RequestQueue == null)
+            {
+                throw new InvalidOperationException("GetResultAsync() was called before this Request was enqueued");
+            }
+
             return await _source.Task;
         }
 

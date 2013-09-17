@@ -52,6 +52,7 @@
   <ItemGroup>
     <Compile Include="Pierce.Test\MoqFixture.cs" />
     <Compile Include="Pierce.Net.Test\RetryPolicyFixture.cs" />
+    <Compile Include="Pierce.Net.Test\RequestFixture.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Pierce\Pierce.csproj">
