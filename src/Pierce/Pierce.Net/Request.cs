@@ -1,6 +1,4 @@
 using System;
-using System.Globalization;
-using System.Linq;
 using Pierce.Logging;
 using System.Threading.Tasks;
 
@@ -71,7 +69,6 @@ namespace Pierce.Net
 
     public abstract class Request<T> : Request
     {
-
         private readonly TaskCompletionSource<T> _source = new TaskCompletionSource<T>();
 
         public async Task<T> GetResultAsync()
