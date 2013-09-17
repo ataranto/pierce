@@ -71,7 +71,7 @@ namespace Pierce.Net
 
     public abstract class Request<T> : Request
     {
-        private static string date_format = "ddd, dd MMM yyyy hh:mm:ss GMT";
+
         private readonly TaskCompletionSource<T> _source = new TaskCompletionSource<T>();
 
         public async Task<T> GetResultAsync()
@@ -96,82 +96,6 @@ namespace Pierce.Net
         {
             base.Cancel();
             _source.SetCanceled();
-        }
-
-        // XXX: should be in Response ctor or static Create() method? see Response.success()
-        protected static CacheEntry GetCacheEntry(NetworkResponse response)
-        {
-            var headers = response.Headers;
-
-            long server_date = 0;
-            long server_expires = 0;
-            long soft_expires = 0;
-            long max_age = 0;
-            var has_cache_control = false;
-
-            var value = headers.Get("Date");
-            if (value != null)
-            {
-                server_date = ParseDate(value);
-            }
-
-            value = headers.Get("Cache-Control");
-            if (value != null)
-            {
-                has_cache_control = true;
-                foreach (var token in value.Split(',').Select(x => x.Trim()))
-                {
-                    if (token == "no-cache" || token == "no-store")
-                    {
-                        return null;
-                    }
-                    else if (token.StartsWith("max-age="))
-                    {
-                        Int64.TryParse(token.Substring(8), out max_age);
-                    }
-                }
-            }
-
-            value = headers.Get("Expires");
-            if (value != null)
-            {
-                server_expires = ParseDate(value);
-            }
-
-            if (has_cache_control)
-            {
-                var now = DateTime.Now.Ticks;
-                soft_expires = now + max_age * 1000;
-            }
-            else if (server_date > 0 && server_expires > + server_date)
-            {
-                soft_expires = (server_expires - server_date);
-            }
-
-            return new CacheEntry
-            {
-                Data = response.Data,
-                ETag = headers.Get("ETag"),
-                Expires = soft_expires,
-                SoftExpires = soft_expires,
-                ServerDate = server_date,
-                Headers = response.Headers,
-            };
-        }
-
-        private static long ParseDate(string @string)
-        {
-            try
-            {
-                var provider = CultureInfo.InvariantCulture;
-                var date = DateTime.ParseExact(@string, date_format, provider);
-
-                return date.Ticks;
-            }
-            catch
-            {
-                return 0;
-            }
         }
     }
 }

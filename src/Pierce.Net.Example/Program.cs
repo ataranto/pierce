@@ -29,11 +29,10 @@ namespace Pierce.Net.Example
                 {
                     Uri = uri,
                 };
+                queue.Add(request);
 
                 try
                 {
-                    queue.Add(request);
-
                     var result = await request.GetResultAsync();
                     Console.WriteLine("received response: {0}", result.Substring(0, 40));
                 }

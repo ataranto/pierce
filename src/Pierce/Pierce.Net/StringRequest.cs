@@ -8,7 +8,7 @@ namespace Pierce.Net
         {
             return new Response<string>
             {
-                CacheEntry = GetCacheEntry(response),
+                CacheEntry = CacheEntry.Create(response),
                 Result = Encoding.UTF8.GetString(response.Data),
             };
         }
