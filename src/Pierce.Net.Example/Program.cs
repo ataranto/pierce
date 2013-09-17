@@ -1,6 +1,6 @@
 using System;
-using System.Threading;
 using Pierce.Net;
+using System.Threading.Tasks;
 
 namespace Pierce.Net.Example
 {
@@ -8,16 +8,19 @@ namespace Pierce.Net.Example
     {
         public static void Main(string[] args)
         {
+            Init();
+            Console.ReadLine();
+        }
+
+        public static async void Init()
+        {
             var queue = new RequestQueue();
 
             var google = new Uri("http://www.google.com/");
             var songkick = new Uri("http://api.songkick.com/api/3.0/events.json?location=clientip&apikey=G2KCF6q91g23Q6Zh");
 
-            for (var x = 1; x <= 16; x++)
+            Parallel.For(1, 16, async x =>
             {
-                Thread.Sleep(200);
-
-                var request_number = x;
                 var uri = x % 2 == 0 ?
                     google :
                     songkick;
@@ -25,20 +28,20 @@ namespace Pierce.Net.Example
                 var request = new StringRequest
                 {
                     Uri = uri,
-                    OnResponse = response =>
-                    {
-                        Console.WriteLine("received response {0}, {1}", request_number, response.Substring(0, 48));
-                    },
-                    OnError = error =>
-                    {
-                        Console.WriteLine("[{0}] ERROR: {1}", request_number, error);
-                    },
                 };
 
-                queue.Add(request);
-            };
+                try
+                {
+                    queue.Add(request);
 
-            Console.ReadLine();
+                    var result = await request.GetResultAsync();
+                    Console.WriteLine("received response: {0}", result.Substring(0, 40));
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("handled exception: {0}", ex);
+                }
+            });
         }
     }
 }

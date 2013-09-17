@@ -2,6 +2,7 @@ using System;
 using System.Globalization;
 using System.Linq;
 using Pierce.Logging;
+using System.Threading.Tasks;
 
 namespace Pierce.Net
 {
@@ -28,7 +29,6 @@ namespace Pierce.Net
         public bool IsCanceled { get; private set; }
         public RetryPolicy RetryPolicy { get; set; }
         public bool ResponseDelievered { get; set; }
-        public Action<Error> OnError { get; set; }
 
         public virtual object CacheKey
         {
@@ -37,25 +37,16 @@ namespace Pierce.Net
 
         public abstract Response Parse(NetworkResponse response);
         public abstract void SetResponse(Response response);
+        public abstract void SetError(Error error);
 
-        public void AddMarker(string name)
-        {
-            _marker_log.Add(name);
-        }
-
-        public void Cancel()
+        public virtual void Cancel()
         {
             IsCanceled = true;
         }
 
-        public void SetError(Error error)
+        public void AddMarker(string name)
         {
-            var action = OnError;
-
-            if (action != null)
-            {
-                action(error);
-            }
+            _marker_log.Add(name);
         }
 
         public void Finish(string marker_name)
@@ -80,21 +71,31 @@ namespace Pierce.Net
 
     public abstract class Request<T> : Request
     {
-        public Action<T> OnResponse { get; set; }
-
         private static string date_format = "ddd, dd MMM yyyy hh:mm:ss GMT";
+        private readonly TaskCompletionSource<T> _source = new TaskCompletionSource<T>();
+
+        public async Task<T> GetResultAsync()
+        {
+            return await _source.Task;
+        }
 
         public override sealed void SetResponse(Response response)
         {
             var typed_response = response as Response<T>;
             var result = typed_response.Result;
-            var action = OnResponse;
 
-            if (action != null)
-            {
-                action(result);
-            }
+            _source.SetResult(result);
+        }
 
+        public override sealed void SetError(Error error)
+        {
+            _source.SetException(error);
+        }
+
+        public override sealed void Cancel()
+        {
+            base.Cancel();
+            _source.SetCanceled();
         }
 
         // XXX: should be in Response ctor or static Create() method? see Response.success()
