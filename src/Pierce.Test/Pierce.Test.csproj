@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -45,11 +45,9 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
-    <Folder Include="Pierce.Net.Test\" />
-    <Folder Include="Pierce.Test\" />
-  </ItemGroup>
-  <ItemGroup>
+    <Compile Include="Pierce.Test\Assert.cs" />
     <Compile Include="Pierce.Test\MoqFixture.cs" />
     <Compile Include="Pierce.Net.Test\RetryPolicyFixture.cs" />
     <Compile Include="Pierce.Net.Test\RequestFixture.cs" />
