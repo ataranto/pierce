@@ -16,6 +16,7 @@ namespace Pierce.Net
             RetryPolicy = new RetryPolicy();
         }
 
+        // XXX: should be System.Net.HttpMethod?
         public string Method { get; set; }
         public Uri Uri { get; set; }
         public Priority Priority { get; set; }
@@ -31,6 +32,16 @@ namespace Pierce.Net
         public virtual object CacheKey
         {
             get { return Uri; }
+        }
+
+        public virtual string BodyContentType
+        {
+            get { return null; }
+        }
+
+        public virtual string Body
+        {
+            get { return null; }
         }
 
         public abstract Response Parse(NetworkResponse response);

@@ -22,6 +22,17 @@ namespace Pierce.Net
                 var parameters = new object[] { key, cache_headers[key] };
                 AddWithoutValidate.Invoke(web_request.Headers, parameters);
             }
+
+            if (request.Method == "POST" || request.Method == "PUT")
+            {
+                web_request.ContentType = request.BodyContentType;
+
+                using (var request_stream = web_request.GetRequestStream())
+                using (var stream_writer = new StreamWriter(request_stream))
+                {
+                    stream_writer.Write(request.Body);
+                }
+            }
                   
             try
             {

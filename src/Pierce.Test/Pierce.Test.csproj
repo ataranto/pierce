@@ -47,6 +47,7 @@
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
+    <Compile Include="Pierce.Net.Test\JsonRequestFixture.cs" />
     <Compile Include="Pierce.Test\Assert.cs" />
     <Compile Include="Pierce.Test\MoqFixture.cs" />
     <Compile Include="Pierce.Net.Test\RetryPolicyFixture.cs" />
