@@ -35,18 +35,6 @@ namespace Pierce.Injection
             _model = model;
         }
 
-        public Syntax<TModel, TView> WithPresenter<TPresenter>()
-            where TPresenter : Presenter<TModel, TView>
-        {
-            var presenter = _container.Get<TPresenter>();
-
-            presenter.Model = _model;
-            presenter.View = _view;
-            presenter.Initialize();
-
-            return this;
-        }
-
         public Syntax<TModel, TView> WithPresenter<TViewInterface, TPresenter>()
             where TViewInterface : class
             where TPresenter : Presenter<TModel, TViewInterface>
