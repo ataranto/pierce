@@ -198,9 +198,11 @@ namespace Pierce.Net
                     continue;
                 }
 
+                NetworkResponse network_response = null;
+
                 try
                 {
-                    var network_response = _network.Execute(request);
+                    network_response = _network.Execute(request);
                     request.AddMarker("network-http-complete");
 
                     if (network_response.StatusCode == HttpStatusCode.NotModified &&
@@ -230,7 +232,7 @@ namespace Pierce.Net
                 {
                     Log.Error(ex, "Unhandled Exception");
 
-                    var exception = new RequestException(ex);
+                    var exception = new RequestException("Unhandled exception", ex, network_response);
                     _delivery.PostException(request, exception);
                 }
             }

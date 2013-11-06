@@ -37,6 +37,7 @@
     <Compile Include="Pierce.Json\IJsonSerializer.cs" />
     <Compile Include="Pierce.Net\IRequestQueue.cs" />
     <Compile Include="Pierce.Net\JsonRequest.cs" />
+    <Compile Include="Pierce.Net\ParseException.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Pierce.Logging\ILog.cs" />
     <Compile Include="Pierce.Logging\ConsoleLog.cs" />

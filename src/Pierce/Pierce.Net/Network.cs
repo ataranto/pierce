@@ -25,30 +25,30 @@ namespace Pierce.Net
         {
             while (true)
             {
-                NetworkResponse response = null;
+                NetworkResponse network_response = null;
 
                 try
                 {
                     var cache_headers = GetCacheHeaders(request.CacheEntry);
-                    response = _client.Execute(request, cache_headers);
+                    network_response = _client.Execute(request, cache_headers);
 
-                    if (response.StatusCode == HttpStatusCode.NotModified)
+                    if (network_response.StatusCode == HttpStatusCode.NotModified)
                     {
                         return new NetworkResponse
                         {
-                            StatusCode = response.StatusCode,
+                            StatusCode = network_response.StatusCode,
                             Data = request.CacheEntry.Data,
-                            Headers = response.Headers,
+                            Headers = network_response.Headers,
                         };
                     }
 
-                    if (response.StatusCode != HttpStatusCode.OK &&
-                        response.StatusCode != HttpStatusCode.NoContent)
+                    if (network_response.StatusCode != HttpStatusCode.OK &&
+                        network_response.StatusCode != HttpStatusCode.NoContent)
                     {
                         throw new IOException();
                     }
 
-                    return response;
+                    return network_response;
                 }
                 catch (TimeoutException ex)
                 {
@@ -56,12 +56,13 @@ namespace Pierce.Net
                 }
                 catch (IOException ex)
                 {
-                    if (response == null)
+                    if (network_response == null)
                     {
-                        throw new ConnectionException();
+                        throw 
+                            new ConnectionException(ex, network_response);
                     }
 
-                    _log.Error("Unexpected response code {0} for {1}", response.StatusCode, request.Uri);
+                    _log.Error("Unexpected response code {0} for {1}", network_response.StatusCode, request.Uri);
                     throw; // XXX logic
                 }
             }

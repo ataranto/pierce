@@ -6,14 +6,10 @@ namespace Pierce.Net
     {
         public NetworkResponse Response { get; set; }
 
-        public RequestException()
+        public RequestException(string message, Exception exception, NetworkResponse response)
+            : base(message, exception)
         {
-
-        }
-
-        public RequestException(Exception exception)
-        {
-
+            Response = response;
         }
     }
 }
