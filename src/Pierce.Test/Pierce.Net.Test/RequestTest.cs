@@ -4,7 +4,7 @@ using Xunit;
 
 namespace Pierce.Net.Test
 {
-    public class RequestFixture
+    public class RequestTest
     {
         [Fact]
         public async Task GetResultAsync_NotAddedToQueue_ThrowsException()

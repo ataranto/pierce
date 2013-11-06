@@ -3,7 +3,7 @@ using Xunit;
 
 namespace Pierce.Net.Test
 {
-    public class RetryPolicyFixture
+    public class RetryPolicyTest
     {
         [Fact]
         public void DefaultConstructor_InitialValuesAreNonZero()

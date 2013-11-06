@@ -1,5 +1,6 @@
 ﻿using Pierce.Json;
 using Pierce.Json.SimpleJson;
+using System;
 using System.Text;
 
 namespace Pierce.Net
@@ -31,13 +32,23 @@ namespace Pierce.Net
 
         public override Response Parse(NetworkResponse response)
         {
+            // XXX: can't assume utf8 encoding, need a parseCharset equiv
             var json_response = Encoding.UTF8.GetString(response.Data);
+            T result;
 
-            // XXX: need to add and raise ParseException
+            try
+            {
+                result = _serializer.Deserialize<T>(json_response);
+            }
+            catch (Exception ex)
+            {
+                throw new ParseException(ex, response);
+            }
+
             return new Response<T>
             {
                 CacheEntry = CacheEntry.Create(response),
-                Result = _serializer.Deserialize<T>(json_response),
+                Result = result,
             };
         }
     }

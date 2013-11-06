@@ -25,30 +25,30 @@ namespace Pierce.Net
         {
             while (true)
             {
-                NetworkResponse network_response = null;
+                NetworkResponse response = null;
 
                 try
                 {
                     var cache_headers = GetCacheHeaders(request.CacheEntry);
-                    network_response = _client.Execute(request, cache_headers);
+                    response = _client.Execute(request, cache_headers);
 
-                    if (network_response.StatusCode == HttpStatusCode.NotModified)
+                    if (response.StatusCode == HttpStatusCode.NotModified)
                     {
                         return new NetworkResponse
                         {
-                            StatusCode = network_response.StatusCode,
+                            StatusCode = response.StatusCode,
                             Data = request.CacheEntry.Data,
-                            Headers = network_response.Headers,
+                            Headers = response.Headers,
                         };
                     }
 
-                    if (network_response.StatusCode != HttpStatusCode.OK &&
-                        network_response.StatusCode != HttpStatusCode.NoContent)
+                    if (response.StatusCode != HttpStatusCode.OK &&
+                        response.StatusCode != HttpStatusCode.NoContent)
                     {
                         throw new IOException();
                     }
 
-                    return network_response;
+                    return response;
                 }
                 catch (TimeoutException ex)
                 {
@@ -56,13 +56,13 @@ namespace Pierce.Net
                 }
                 catch (IOException ex)
                 {
-                    if (network_response == null)
+                    if (response == null)
                     {
                         throw 
-                            new ConnectionException(ex, network_response);
+                            new ConnectionException(ex, response);
                     }
 
-                    _log.Error("Unexpected response code {0} for {1}", network_response.StatusCode, request.Uri);
+                    _log.Error("Unexpected response code {0} for {1}", response.StatusCode, request.Uri);
                     throw; // XXX logic
                 }
             }

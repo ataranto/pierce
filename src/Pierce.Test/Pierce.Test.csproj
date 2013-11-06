@@ -47,11 +47,12 @@
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
-    <Compile Include="Pierce.Net.Test\JsonRequestFixture.cs" />
+    <Compile Include="Pierce.Json.SimpleJson.Test\SimpleJsonSerializerTest.cs" />
+    <Compile Include="Pierce.Net.Test\JsonRequestTest.cs" />
     <Compile Include="Pierce.Test\Assert.cs" />
     <Compile Include="Pierce.Test\MoqFixture.cs" />
-    <Compile Include="Pierce.Net.Test\RetryPolicyFixture.cs" />
-    <Compile Include="Pierce.Net.Test\RequestFixture.cs" />
+    <Compile Include="Pierce.Net.Test\RetryPolicyTest.cs" />
+    <Compile Include="Pierce.Net.Test\RequestTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Pierce\Pierce.csproj">
