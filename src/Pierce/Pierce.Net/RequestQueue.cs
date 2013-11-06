@@ -1,3 +1,4 @@
+using Pierce.Logging;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -5,11 +6,10 @@ using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
-using Pierce.Logging;
 
 namespace Pierce.Net
 {
-    public class RequestQueue
+    public class RequestQueue : IRequestQueue
     {
         private readonly BlockingCollection<Request> _cache_queue = new BlockingCollection<Request>();
         private readonly BlockingCollection<Request> _network_queue = new BlockingCollection<Request>();
@@ -23,12 +23,27 @@ namespace Pierce.Net
 
         private int _sequence;
 
+        /* XXX: can't use this ctor with DI
         public RequestQueue(ILog log = null, Cache cache = null, Network network = null, ResponseDelivery delivery = null)
         {
             Log = log ?? new ConsoleLog { Tag = GetType().Namespace };
             _cache = cache ?? new Cache();
             _network = network ?? new Network(Log);
             _delivery = delivery ?? new ResponseDelivery();
+
+            Task.Factory.StartNew(CacheConsumer);
+
+            Task.Factory.StartNew(NetworkConsumer);
+            Task.Factory.StartNew(NetworkConsumer);
+        }
+        */
+
+        public RequestQueue(ILog log)
+        {
+            Log = log;
+            _cache = new Cache();
+            _network = new Network(Log);
+            _delivery = new ResponseDelivery();
 
             Task.Factory.StartNew(CacheConsumer);
 

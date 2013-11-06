@@ -6,7 +6,11 @@ namespace Pierce.UI
     {
         public TView View { protected get; set; }
         public abstract void Initialize();
-        public abstract void Dispose();
+
+        public virtual void Dispose()
+        {
+
+        }
     }
 
     public abstract class Presenter<TModel, TView> : Presenter<TView>

@@ -2,6 +2,7 @@ using System;
 using Pierce.Net;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using Pierce.Logging;
 
 namespace Pierce.Net.Example
 {
@@ -21,7 +22,7 @@ namespace Pierce.Net.Example
 
         public static async void Init()
         {
-            var queue = new RequestQueue();
+            var queue = new RequestQueue(new ConsoleLog());
 
             var google = new Uri("http://www.google.com/");
             var songkick = new Uri("http://api.songkick.com/api/3.0/events.json?location=clientip&apikey=G2KCF6q91g23Q6Zh");
