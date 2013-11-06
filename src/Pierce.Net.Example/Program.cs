@@ -1,9 +1,16 @@
 using System;
 using Pierce.Net;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 
 namespace Pierce.Net.Example
 {
+    class JsonDateTime
+    {
+        public string Time { get; set; }
+        public string Date { get; set; }
+    }
+
     class MainClass
     {
         public static void Main(string[] args)
@@ -18,23 +25,24 @@ namespace Pierce.Net.Example
 
             var google = new Uri("http://www.google.com/");
             var songkick = new Uri("http://api.songkick.com/api/3.0/events.json?location=clientip&apikey=G2KCF6q91g23Q6Zh");
+            var jsontest = new Uri("http://date.jsontest.com");
 
-            Parallel.For(1, 16, async x =>
+            Parallel.For(0, 4, async x =>
             {
                 var uri = x % 2 == 0 ?
                     google :
                     songkick;
 
-                var request = new StringRequest
+                var request = new JsonRequest<JsonDateTime>
                 {
-                    Uri = uri,
+                    Uri = jsontest,
                 };
                 queue.Add(request);
 
                 try
                 {
                     var result = await request.GetResultAsync();
-                    Console.WriteLine("received response: {0}", result.Substring(0, 40));
+                    Console.WriteLine("received response: {0}", "total entries: " + result.Date);
                 }
                 catch (Exception ex)
                 {
