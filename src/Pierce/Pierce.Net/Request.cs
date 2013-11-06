@@ -35,7 +35,7 @@ namespace Pierce.Net
 
         public abstract Response Parse(NetworkResponse response);
         public abstract void SetResponse(Response response);
-        public abstract void SetError(Error error);
+        public abstract void SetException(RequestException exception);
 
         public virtual void Cancel()
         {
@@ -63,7 +63,7 @@ namespace Pierce.Net
         public override string ToString()
         {
             return String.Format("[{0}] {1} {2} {3}",
-                                 IsCanceled ? "X" : " ", Uri, Priority, Sequence);
+                IsCanceled ? "X" : " ", Uri, Priority, Sequence);
         }
     }
 
@@ -89,9 +89,9 @@ namespace Pierce.Net
             _source.SetResult(result);
         }
 
-        public override sealed void SetError(Error error)
+        public override sealed void SetException(RequestException exception)
         {
-            _source.SetException(error);
+            _source.SetException(exception);
         }
 
         public override sealed void Cancel()

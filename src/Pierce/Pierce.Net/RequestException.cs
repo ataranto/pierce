@@ -2,16 +2,16 @@ using System;
 
 namespace Pierce.Net
 {
-    public class Error : Exception
+    public class RequestException : Exception
     {
         public NetworkResponse Response { get; set; }
 
-        public Error()
+        public RequestException()
         {
 
         }
 
-        public Error(Exception exception)
+        public RequestException(Exception exception)
         {
 
         }

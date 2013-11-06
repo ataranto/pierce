@@ -50,15 +50,15 @@ namespace Pierce.Net
 
                     return response;
                 }
-                catch (TimeoutError error)
+                catch (TimeoutException ex)
                 {
-                    AttemptRetry(request, error);
+                    AttemptRetry(request, ex);
                 }
                 catch (IOException ex)
                 {
                     if (response == null)
                     {
-                        throw new ConnectionError();
+                        throw new ConnectionException();
                     }
 
                     _log.Error("Unexpected response code {0} for {1}", response.StatusCode, request.Uri);
@@ -67,17 +67,17 @@ namespace Pierce.Net
             }
         }
 
-        private static void AttemptRetry(Request request, Error error)
+        private static void AttemptRetry(Request request, RequestException exception)
         {
             var retry_policy = request.RetryPolicy;
             var timeout_ms = retry_policy.CurrentTimeoutMs;
 
             try
             {
-                retry_policy.Retry(error);
+                retry_policy.Retry(exception);
                 request.AddMarker(String.Format("retry [timeout={0}]", timeout_ms));
             }
-            catch (Error)
+            catch (RequestException)
             {
                 request.AddMarker(String.Format("timeout-giveup [timeout={0}]", timeout_ms));
                 throw;

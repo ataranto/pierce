@@ -43,7 +43,7 @@ namespace Pierce.Net
             {
                 if (ex.Status == WebExceptionStatus.Timeout)
                 {
-                    throw new TimeoutError();
+                    throw new TimeoutException();
                 }
 
                 throw;

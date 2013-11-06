@@ -17,14 +17,14 @@ namespace Pierce.Net
             _backoff_multiplier = backoff_multiplier;
         }
 
-        public void Retry(Error error)
+        public void Retry(RequestException exception)
         {
             CurrentRetryCount++;
             CurrentTimeoutMs += (int)Math.Round(CurrentTimeoutMs * _backoff_multiplier);
 
             if (CurrentRetryCount > _max_retries)
             {
-                throw error;
+                throw exception;
             }
         }
     }

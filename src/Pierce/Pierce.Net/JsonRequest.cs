@@ -17,6 +17,7 @@ namespace Pierce.Net
         {
             var json = Encoding.UTF8.GetString(response.Data);
 
+            // XXX: need to add and raise ParseException
             return new Response<T>
             {
                 CacheEntry = CacheEntry.Create(response),

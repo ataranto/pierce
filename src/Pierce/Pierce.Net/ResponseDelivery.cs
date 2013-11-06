@@ -18,10 +18,10 @@ namespace Pierce.Net
             _invoke(() => Deliver(request, response, action));
         }
 
-        public void PostError(Request request, Error error)
+        public void PostException(Request request, RequestException exception)
         {
-            request.AddMarker("post-error");
-            var response = new Response { Error = error };
+            request.AddMarker("post-exception");
+            var response = new Response { Exception = exception };
             _invoke(() => Deliver(request, response));
         }
 
@@ -39,7 +39,7 @@ namespace Pierce.Net
             }
             else
             {
-                request.SetError(response.Error);
+                request.SetException(response.Exception);
             }
 
             if (response.IsIntermediate)

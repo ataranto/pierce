@@ -27,22 +27,21 @@ namespace Pierce.Net.Example
             var songkick = new Uri("http://api.songkick.com/api/3.0/events.json?location=clientip&apikey=G2KCF6q91g23Q6Zh");
             var jsontest = new Uri("http://date.jsontest.com");
 
-            Parallel.For(0, 4, async x =>
+            Parallel.For(0, 32, async x =>
             {
                 var uri = x % 2 == 0 ?
                     google :
                     songkick;
 
-                var request = new JsonRequest<JsonDateTime>
+                var request = new StringRequest
                 {
-                    Uri = jsontest,
+                    Uri = uri,
                 };
                 queue.Add(request);
 
                 try
                 {
                     var result = await request.GetResultAsync();
-                    Console.WriteLine("received response: {0}", "total entries: " + result.Date);
                 }
                 catch (Exception ex)
                 {

@@ -42,9 +42,9 @@
     <Compile Include="Pierce.Logging\MarkerLog.cs" />
     <Compile Include="Pierce.Net\ResponseDelivery.cs" />
     <Compile Include="Pierce.Net\Priority.cs" />
-    <Compile Include="Pierce.Net\Error.cs" />
-    <Compile Include="Pierce.Net\TimeoutError.cs" />
-    <Compile Include="Pierce.Net\ConnectionError.cs" />
+    <Compile Include="Pierce.Net\RequestException.cs" />
+    <Compile Include="Pierce.Net\TimeoutException.cs" />
+    <Compile Include="Pierce.Net\ConnectionException.cs" />
     <Compile Include="Pierce.Net\RetryPolicy.cs" />
     <Compile Include="Pierce.Net\Request.cs" />
     <Compile Include="Pierce.Net\StringRequest.cs" />

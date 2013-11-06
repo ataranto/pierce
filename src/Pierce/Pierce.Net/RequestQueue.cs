@@ -207,16 +207,16 @@ namespace Pierce.Net
                     request.ResponseDelievered = true;
                     _delivery.PostResponse(request, response);
                 }
-                catch (Error ex)
+                catch (RequestException ex)
                 {
-                    _delivery.PostError(request, ex);
+                    _delivery.PostException(request, ex);
                 }
                 catch (Exception ex)
                 {
-                    Log.Error(ex, "Exception");
+                    Log.Error(ex, "Unhandled Exception");
 
-                    var error = new Error(ex);
-                    _delivery.PostError(request, error);
+                    var exception = new RequestException(ex);
+                    _delivery.PostException(request, exception);
                 }
             }
         }
