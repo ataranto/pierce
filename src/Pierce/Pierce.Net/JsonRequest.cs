@@ -32,24 +32,26 @@ namespace Pierce.Net
 
         public override Response Parse(NetworkResponse response)
         {
+            return new Response<T>
+            {
+                CacheEntry = CacheEntry.Create(response),
+                Result = ParseJson(response),
+            };
+        }
+
+        private T ParseJson(NetworkResponse response)
+        {
             // XXX: can't assume utf8 encoding, need a parseCharset equiv
             var json_response = Encoding.UTF8.GetString(response.Data);
-            T result;
 
             try
             {
-                result = _serializer.Deserialize<T>(json_response);
+                return _serializer.Deserialize<T>(json_response);
             }
             catch (Exception ex)
             {
                 throw new ParseException(ex, response);
             }
-
-            return new Response<T>
-            {
-                CacheEntry = CacheEntry.Create(response),
-                Result = result,
-            };
         }
     }
 }
