@@ -17,7 +17,7 @@ namespace Pierce.Net
 
         public override string BodyContentType
         {
-            get { return "text/json"; } // XXX?
+            get { return "application/json"; }
         }
 
         public override string Body
@@ -25,7 +25,7 @@ namespace Pierce.Net
             get { return _body; }
         }
 
-        public object ObjectBody
+        public object Data
         {
             set { _body = _serializer.Serialize(value); }
         }

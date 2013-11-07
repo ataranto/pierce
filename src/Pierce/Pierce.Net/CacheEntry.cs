@@ -26,21 +26,19 @@ namespace Pierce.Net
 
         public static CacheEntry Create(NetworkResponse response)
         {
-            var headers = response.Headers;
-
             long server_date = 0;
             long server_expires = 0;
             long soft_expires = 0;
             long max_age = 0;
             var has_cache_control = false;
 
-            var value = headers.Get("Date");
+            var value = response.Headers.Get("Date");
             if (value != null)
             {
                 server_date = ParseDate(value);
             }
 
-            value = headers.Get("Cache-Control");
+            value = response.Headers.Get("Cache-Control");
             if (value != null)
             {
                 has_cache_control = true;
@@ -57,7 +55,7 @@ namespace Pierce.Net
                 }
             }
 
-            value = headers.Get("Expires");
+            value = response.Headers.Get("Expires");
             if (value != null)
             {
                 server_expires = ParseDate(value);
@@ -76,7 +74,7 @@ namespace Pierce.Net
             return new CacheEntry
             {
                 Data = response.Data,
-                ETag = headers.Get("ETag"),
+                ETag = response.Headers.Get("ETag"),
                 Expires = soft_expires,
                 SoftExpires = soft_expires,
                 ServerDate = server_date,

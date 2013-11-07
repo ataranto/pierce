@@ -73,8 +73,8 @@ namespace Pierce.Net
 
         public override string ToString()
         {
-            return String.Format("[{0}] {1} {2} {3}",
-                IsCanceled ? "X" : " ", Uri, Priority, Sequence);
+            return String.Format("[{0}] {1} {2} {3} {4}",
+                IsCanceled ? "X" : " ", Method, Uri, Priority, Sequence);
         }
     }
 
@@ -82,7 +82,7 @@ namespace Pierce.Net
     {
         private readonly TaskCompletionSource<T> _source = new TaskCompletionSource<T>();
 
-        public async Task<T> GetResultAsync()
+        public async Task<T> GetResponseAsync()
         {
             if (RequestQueue == null)
             {

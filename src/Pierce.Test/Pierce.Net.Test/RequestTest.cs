@@ -11,7 +11,7 @@ namespace Pierce.Net.Test
         {
             var request = new StringRequest();
             await Pierce.Test.Assert.ThrowsAsync<InvalidOperationException>(async () =>
-                await request.GetResultAsync());
+                await request.GetResponseAsync());
         }
     }
 }

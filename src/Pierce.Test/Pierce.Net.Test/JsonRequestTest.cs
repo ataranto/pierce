@@ -28,7 +28,7 @@ namespace Pierce.Net.Test
                 Setup(m => m.Serialize(body)).
                 Returns(serialized_body);
 
-            _request.ObjectBody = new { foo = "foo", bar = "bar" };
+            _request.Data = new { foo = "foo", bar = "bar" };
             Xunit.Assert.Equal(serialized_body, _request.Body);
         }
 
