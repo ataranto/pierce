@@ -10,12 +10,15 @@ namespace Pierce.Net
         private static readonly MethodInfo AddWithoutValidate = typeof(WebHeaderCollection).
             GetMethod("AddWithoutValidate", BindingFlags.Instance | BindingFlags.NonPublic);
 
+        private readonly CookieContainer _cookie_container = new CookieContainer();
+
         public NetworkResponse Execute(Request request, WebHeaderCollection cache_headers)
         {
             var web_request = WebRequest.Create(request.Uri) as HttpWebRequest;
             web_request.KeepAlive = true;
             web_request.Method = request.Method;
             web_request.Timeout = request.RetryPolicy.CurrentTimeoutMs;
+            web_request.CookieContainer = _cookie_container;
 
             foreach (var key in cache_headers.AllKeys)
             {
