@@ -1,6 +1,7 @@
 ﻿using Moq;
 using Pierce.Json;
 using Pierce.Test;
+using System.Net;
 using System.Runtime.Serialization;
 using System.Text;
 using Xunit;
@@ -36,7 +37,11 @@ namespace Pierce.Net.Test
         public void Parse_DeseralizeException_ThrowsParseException()
         {
             var invalid_json = "invalid json";
-            var response = new NetworkResponse { Data = Encoding.UTF8.GetBytes(invalid_json) };
+            var response = new NetworkResponse
+            {
+                Data = Encoding.UTF8.GetBytes(invalid_json),
+                Headers = new WebHeaderCollection(),
+            };
 
             _mock_serializer.
                 Setup(m => m.Deserialize<int>(invalid_json)).
