@@ -7,17 +7,17 @@ namespace Pierce.Net
 {
     public class Network
     {
-        private readonly ILog _log;
+        private readonly ILogger _logger;
         private readonly IHttpClient _client;
 
-        public Network(ILog log, IHttpClient client = null)
+        public Network(ILogger logger, IHttpClient client = null)
         {
-            if (log == null)
+            if (logger == null)
             {
                 throw new ArgumentNullException("log");
             }
 
-            _log = log;
+            _logger = logger;
             _client = client ?? new WebRequestClient();
         }
 
@@ -62,7 +62,7 @@ namespace Pierce.Net
                             new ConnectionException(ex, response);
                     }
 
-                    _log.Error("Unexpected response code {0} for {1}", response.StatusCode, request.Uri);
+                    _logger.Error("Unexpected response code {0} for {1}", response.StatusCode, request.Uri);
                     throw; // XXX logic
                 }
             }

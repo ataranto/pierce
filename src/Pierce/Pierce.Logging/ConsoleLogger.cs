@@ -2,7 +2,7 @@ using System;
 
 namespace Pierce.Logging
 {
-    public class ConsoleLog : ILog
+    public class ConsoleLogger : ILogger
     {
         public string Tag
         {

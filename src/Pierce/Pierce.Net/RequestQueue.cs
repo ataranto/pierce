@@ -38,7 +38,7 @@ namespace Pierce.Net
         }
         */
 
-        public RequestQueue(ILog log)
+        public RequestQueue(ILogger log)
         {
             Log = log;
             _cache = new Cache();
@@ -51,7 +51,7 @@ namespace Pierce.Net
             Task.Factory.StartNew(NetworkConsumer);
         }
 
-        public ILog Log { get; private set; }
+        public ILogger Log { get; private set; }
 
         public Request Add(Request request)
         {

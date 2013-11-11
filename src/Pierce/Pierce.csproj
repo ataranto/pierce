@@ -39,8 +39,8 @@
     <Compile Include="Pierce.Net\JsonRequest.cs" />
     <Compile Include="Pierce.Net\ParseException.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Pierce.Logging\ILog.cs" />
-    <Compile Include="Pierce.Logging\ConsoleLog.cs" />
+    <Compile Include="Pierce.Logging\ILogger.cs" />
+    <Compile Include="Pierce.Logging\ConsoleLogger.cs" />
     <Compile Include="Pierce.Logging\MarkerLog.cs" />
     <Compile Include="Pierce.Net\ResponseDelivery.cs" />
     <Compile Include="Pierce.Net\Priority.cs" />

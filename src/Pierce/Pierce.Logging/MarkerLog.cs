@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Linq;
+using System.Text;
 
 namespace Pierce.Logging
 {
@@ -31,7 +32,7 @@ namespace Pierce.Logging
             }
         }
 
-        public void Finish(ILog log, string header)
+        public void Finish(ILogger log, string header)
         {
             if (log == null)
             {
@@ -42,18 +43,20 @@ namespace Pierce.Logging
             {
                 var duration = GetDuration();
 
+                var string_builder = new StringBuilder();
+                string_builder.AppendFormat(@"({0:ss\.ffff} seconds) {1}", duration, header);
                 // XXX check log duration threshold (once we have one)
-                log.Debug(@"({0:ss\.ffff} seconds) {1}", duration, header);
 
                 var previous_time = _markers.First().Time;
                 foreach (var marker in _markers)
                 {
                     duration = new TimeSpan(marker.Time - previous_time);
                     previous_time = marker.Time;
-
-                    log.Debug("  {0:ss\\.ffff} [{1:00}] {2}",
+                    string_builder.AppendLine().AppendFormat("  {0:ss\\.ffff} [{1:00}] {2}",
                         duration, marker.ThreadId, marker.Name);
                 };
+
+                log.Debug(string_builder.ToString());
             }
         }
 
