@@ -9,6 +9,11 @@ namespace Pierce.Injection
             var view = Get<TView>();
             return new Syntax<TView>(this, view);
         }
+
+        public Syntax<TView> GetView<TView>(TView view) where TView : class
+        {
+            return new Syntax<TView>(this, view);
+        }
     }
 }
 

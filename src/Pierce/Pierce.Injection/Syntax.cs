@@ -41,6 +41,7 @@ namespace Pierce.Injection
         {
             var presenter = _container.Get<TPresenter>();
 
+            presenter.Container = _container;
             presenter.Model = _model;
             presenter.View = _view as TViewInterface;
             presenter.Initialize();
