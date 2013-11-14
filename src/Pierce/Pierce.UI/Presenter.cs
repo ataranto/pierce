@@ -11,13 +11,20 @@ namespace Pierce.UI
 
         public virtual void Dispose()
         {
-
+            Container = null;
+            View = default(TView);
         }
     }
 
     public abstract class Presenter<TModel, TView> : Presenter<TView>
     {
         public TModel Model { protected get; set; }
+
+        public override void Dispose()
+        {
+            base.Dispose();
+            Model = default(TModel);
+        }
     }
 }
 
