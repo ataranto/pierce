@@ -32,6 +32,7 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Pierce.Disposables\DisposableList.cs" />
     <Compile Include="Pierce.Json.SimpleJson\SerializationStrategy.cs" />
     <Compile Include="Pierce.Json.SimpleJson\SimpleJsonSerializer.cs" />
     <Compile Include="Pierce.Json\IJsonSerializer.cs" />

@@ -1,3 +1,4 @@
+using Pierce.Disposables;
 using Pierce.UI;
 
 namespace Pierce.Injection
@@ -27,7 +28,7 @@ namespace Pierce.Injection
 
     public class Syntax<TModel, TView> : Syntax<TView>
     {
-        protected readonly TModel _model;
+        private readonly TModel _model;
 
         public Syntax(IContainer container, TModel model, TView view)
             : base(container, view)
