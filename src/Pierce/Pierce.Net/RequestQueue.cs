@@ -17,33 +17,18 @@ namespace Pierce.Net
         private readonly ISet<Request> _requests = new HashSet<Request>();
         private readonly IDictionary<object, List<Request>> _blocked_requests = new Dictionary<object, List<Request>>();
 
-        private readonly Cache _cache;
-        private readonly Network _network;
-        private readonly ResponseDelivery _delivery;
+        private readonly ICache _cache;
+        private readonly INetwork _network;
+        private readonly IResponseDelivery _delivery;
 
         private int _sequence;
 
-        /* XXX: can't use this ctor with DI
-        public RequestQueue(ILog log = null, Cache cache = null, Network network = null, ResponseDelivery delivery = null)
+        public RequestQueue(ILogger logger, ICache cache, INetwork network, IResponseDelivery delivery)
         {
-            Log = log ?? new ConsoleLog { Tag = GetType().Namespace };
-            _cache = cache ?? new Cache();
-            _network = network ?? new Network(Log);
-            _delivery = delivery ?? new ResponseDelivery();
-
-            Task.Factory.StartNew(CacheConsumer);
-
-            Task.Factory.StartNew(NetworkConsumer);
-            Task.Factory.StartNew(NetworkConsumer);
-        }
-        */
-
-        public RequestQueue(ILogger log)
-        {
-            Log = log;
-            _cache = new Cache();
-            _network = new Network(Log);
-            _delivery = new ResponseDelivery();
+            Log = logger;
+            _cache = cache;
+            _network = network;
+            _delivery = delivery;
 
             Task.Factory.StartNew(CacheConsumer);
 

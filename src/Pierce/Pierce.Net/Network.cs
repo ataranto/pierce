@@ -1,11 +1,11 @@
+using Pierce.Logging;
 using System;
 using System.IO;
 using System.Net;
-using Pierce.Logging;
 
 namespace Pierce.Net
 {
-    public class Network
+    public class Network : INetwork
     {
         private readonly ILogger _logger;
         private readonly IHttpClient _client;

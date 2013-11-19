@@ -2,7 +2,7 @@ using System.Collections.Generic;
 
 namespace Pierce.Net
 {
-    public class Cache
+    public class Cache : ICache
     {
         private readonly IDictionary<object, CacheEntry> _dictionary = new Dictionary<object, CacheEntry>();
 
