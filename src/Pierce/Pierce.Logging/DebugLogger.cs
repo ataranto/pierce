@@ -2,7 +2,7 @@ using System;
 
 namespace Pierce.Logging
 {
-    public class ConsoleLogger : ILogger
+	public class DebugLogger : ILogger
     {
         public string Tag
         {
@@ -11,7 +11,8 @@ namespace Pierce.Logging
 
         public void Debug(string format, params object[] args)
         {
-            Console.WriteLine(Tag + ":Debug:" + String.Format(format, args));
+			System.Diagnostics.Debug.
+				WriteLine(Tag + ":Debug:" + String.Format(format, args));
         }
 
         public void Error(string format, params object[] args)
@@ -24,7 +25,8 @@ namespace Pierce.Logging
             var exception_string = exception == null ?
                 null :
                 "\n" + exception;
-            Console.WriteLine(Tag + ":Error:" + String.Format(format, args) + exception_string);
+			System.Diagnostics.Debug.
+				WriteLine(Tag + ":Error:" + String.Format(format, args) + exception_string);
         }
     }
 }
