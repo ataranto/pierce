@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
-using System.Threading;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace Pierce.Logging
 {
@@ -11,7 +11,7 @@ namespace Pierce.Logging
         private class Marker
         {
             public string Name { get; set; }
-            public int ThreadId { get; set; }
+            public int TaskId { get; set; }
             public long Time { get; set; }
         }
 
@@ -22,7 +22,7 @@ namespace Pierce.Logging
             var marker = new Marker
             {
                 Name = name,
-                ThreadId = Thread.CurrentThread.ManagedThreadId,
+				TaskId = Task.CurrentId.GetValueOrDefault(),
                 Time = DateTime.Now.Ticks,
             };
 
@@ -53,7 +53,7 @@ namespace Pierce.Logging
                     duration = new TimeSpan(marker.Time - previous_time);
                     previous_time = marker.Time;
                     string_builder.AppendLine().AppendFormat("  {0:ss\\.ffff} [{1:00}] {2}",
-                        duration, marker.ThreadId, marker.Name);
+                        duration, marker.TaskId, marker.Name);
                 };
 
                 log.Debug(string_builder.ToString());

@@ -42,6 +42,7 @@
     <Compile Include="Pierce.UI\IView.cs" />
     <Compile Include="Pierce.UI\Presenter.cs" />
     <Compile Include="Pierce.Logging\DebugLogger.cs" />
+    <Compile Include="Pierce.Logging\MarkerLog.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <ItemGroup>
