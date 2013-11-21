@@ -44,7 +44,6 @@
     <Compile Include="Pierce.Net\ParseException.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Pierce.Logging\ILogger.cs" />
-    <Compile Include="Pierce.Logging\ConsoleLogger.cs" />
     <Compile Include="Pierce.Logging\MarkerLog.cs" />
     <Compile Include="Pierce.Net\ResponseDelivery.cs" />
     <Compile Include="Pierce.Net\Priority.cs" />
@@ -69,6 +68,7 @@
     <Compile Include="Pierce.Net\WebRequestClient.cs" />
     <Compile Include="Pierce.Net\RequestMethod.cs" />
     <Compile Include="SimpleJson.cs" />
+    <Compile Include="Pierce.Logging\DebugLogger.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
