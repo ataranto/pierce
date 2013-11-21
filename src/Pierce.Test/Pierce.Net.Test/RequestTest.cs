@@ -1,3 +1,4 @@
+using Pierce.Test;
 using System;
 using System.Threading.Tasks;
 using Xunit;
@@ -10,7 +11,7 @@ namespace Pierce.Net.Test
         public async Task GetResultAsync_NotAddedToQueue_ThrowsException()
         {
             var request = new StringRequest();
-            await Pierce.Test.Assert.ThrowsAsync<InvalidOperationException>(async () =>
+            await TaskAssert.ThrowsAsync<InvalidOperationException>(async () =>
                 await request.GetResponseAsync());
         }
     }

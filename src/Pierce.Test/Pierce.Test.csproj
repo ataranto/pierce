@@ -49,7 +49,7 @@
   <ItemGroup>
     <Compile Include="Pierce.Json.SimpleJson.Test\SimpleJsonSerializerTest.cs" />
     <Compile Include="Pierce.Net.Test\JsonRequestTest.cs" />
-    <Compile Include="Pierce.Test\Assert.cs" />
+    <Compile Include="Pierce.Test\TaskAssert.cs" />
     <Compile Include="Pierce.Test\MoqFixture.cs" />
     <Compile Include="Pierce.Net.Test\RetryPolicyTest.cs" />
     <Compile Include="Pierce.Net.Test\RequestTest.cs" />
