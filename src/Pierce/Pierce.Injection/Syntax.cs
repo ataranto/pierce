@@ -1,3 +1,4 @@
+using System;
 using Pierce.Disposables;
 using Pierce.UI;
 
@@ -14,15 +15,16 @@ namespace Pierce.Injection
             _view = view;
         }
 
+		public Syntax<TView> Do(Action<TView> action)
+		{
+			action(_view);
+			return this;
+		}
+
         public Syntax<TModel, TView> WithModel<TModel>(TModel model = null) where TModel : class
         {
             model = model ?? _container.Get<TModel>();
             return new Syntax<TModel, TView>(_container, model, _view);
-        }
-
-        public TView ToView()
-        {
-            return _view;
         }
     }
 
