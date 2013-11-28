@@ -1,5 +1,6 @@
 using Pierce.UI.Injection;
 using System;
+using System.Collections.Generic;
 using System.Reactive.Concurrency;
 using System.Reactive.Disposables;
 
@@ -20,6 +21,7 @@ namespace Pierce.UI
             _disposables.Dispose();
 
             Container = null;
+            UIScheduler = null;
             View = default(TView);
         }
     }

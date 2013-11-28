@@ -2,7 +2,7 @@
 {
     public enum ViewState
     {
-        Opened,
-        Disposed,
+        Initialize,
+        Dispose,
     }
 }

@@ -1,5 +1,6 @@
 using System;
 using System.Reactive.Concurrency;
+using System.Reactive.Disposables;
 using System.Reactive.Linq;
 
 namespace Pierce.UI.Injection
@@ -22,7 +23,7 @@ namespace Pierce.UI.Injection
 			return this;
 		}
 
-        public Syntax<TModel, TView> WithModel<TModel>(TModel model = null) where TModel : class
+        public Syntax<TModel, TView> Model<TModel>(TModel model = null) where TModel : class
         {
             model = model ?? _container.Get<TModel>();
             return new Syntax<TModel, TView>(_container, model, _view);
@@ -37,6 +38,8 @@ namespace Pierce.UI.Injection
     public class Syntax<TModel, TView> : Syntax<TView>
         where TView : IView
     {
+        private readonly CompositeDisposable _disposable =
+            new CompositeDisposable();
         private readonly TModel _model;
 
         public Syntax(IContainer container, TModel model, TView view)
@@ -45,11 +48,12 @@ namespace Pierce.UI.Injection
             _model = model;
         }
 
-        public Syntax<TModel, TView> WithPresenter<TViewInterface, TPresenter>()
+        public Syntax<TModel, TView> Presenter<TViewInterface, TPresenter>()
             where TViewInterface : class, IView
             where TPresenter : Presenter<TModel, TViewInterface>
         {
             var presenter = _container.Get<TPresenter>();
+            _disposable.Add(presenter);
 
             presenter.Container = _container;
             presenter.UIScheduler = _container.Get<IScheduler>();
@@ -57,15 +61,20 @@ namespace Pierce.UI.Injection
             presenter.View = _view as TViewInterface;
 
             _view.State.
-                Where(state => state == ViewState.Opened).
+                Where(state => state == ViewState.Initialize).
                 Take(1).
                 Subscribe(state => presenter.Initialize());
             _view.State.
-                Where(state => state == ViewState.Disposed).
+                Where(state => state == ViewState.Dispose).
                 Take(1).
                 Subscribe(state => presenter.Dispose());
 
             return this;
+        }
+
+        public IDisposable ToDisposable()
+        {
+            return _disposable;
         }
     }
 }
