@@ -2,6 +2,7 @@
 {
     public enum ViewState
     {
+        None,
         Initialize,
         Dispose,
     }
