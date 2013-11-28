@@ -1,8 +1,6 @@
-using System;
-using Pierce.Net;
-using System.Threading.Tasks;
-using System.Collections.Generic;
 using Pierce.Logging;
+using System;
+using System.Threading.Tasks;
 
 namespace Pierce.Net.Example
 {

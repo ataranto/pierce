@@ -1,10 +1,11 @@
 using System;
-using Pierce.Disposables;
-using Pierce.UI;
+using System.Reactive.Concurrency;
+using System.Reactive.Linq;
 
-namespace Pierce.Injection
+namespace Pierce.UI.Injection
 {
     public class Syntax<TView>
+        where TView : IView
     {
         protected readonly IContainer _container;
         protected readonly TView _view;
@@ -26,9 +27,15 @@ namespace Pierce.Injection
             model = model ?? _container.Get<TModel>();
             return new Syntax<TModel, TView>(_container, model, _view);
         }
+
+        public TView ToView()
+        {
+            return _view;
+        }
     }
 
     public class Syntax<TModel, TView> : Syntax<TView>
+        where TView : IView
     {
         private readonly TModel _model;
 
@@ -39,15 +46,24 @@ namespace Pierce.Injection
         }
 
         public Syntax<TModel, TView> WithPresenter<TViewInterface, TPresenter>()
-            where TViewInterface : class
+            where TViewInterface : class, IView
             where TPresenter : Presenter<TModel, TViewInterface>
         {
             var presenter = _container.Get<TPresenter>();
 
             presenter.Container = _container;
+            presenter.UIScheduler = _container.Get<IScheduler>();
             presenter.Model = _model;
             presenter.View = _view as TViewInterface;
-            presenter.Initialize();
+
+            _view.State.
+                Where(state => state == ViewState.Opened).
+                Take(1).
+                Subscribe(state => presenter.Initialize());
+            _view.State.
+                Where(state => state == ViewState.Disposed).
+                Take(1).
+                Subscribe(state => presenter.Dispose());
 
             return this;
         }

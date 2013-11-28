@@ -1,15 +1,17 @@
-using Pierce.Disposables;
-using Pierce.Injection;
+using Pierce.UI.Injection;
 using System;
+using System.Reactive.Concurrency;
+using System.Reactive.Disposables;
 
 namespace Pierce.UI
 {
     public abstract class Presenter<TView> : IDisposable
     {
-        protected readonly DisposableList _disposables =
-            new DisposableList();
+        protected readonly CompositeDisposable _disposables =
+            new CompositeDisposable();
 
         public IContainer Container { protected get; set; }
+        public IScheduler UIScheduler { protected get; set; }
         public TView View { protected get; set; }
         public abstract void Initialize();
 
