@@ -8,6 +8,8 @@ namespace Pierce.UI.Injection
     public class Syntax<TView>
         where TView : IView
     {
+        protected readonly CompositeDisposable _disposable =
+            new CompositeDisposable();
         protected readonly IContainer _container;
         protected readonly TView _view;
 
@@ -33,13 +35,16 @@ namespace Pierce.UI.Injection
         {
             return _view;
         }
+
+        public IDisposable ToDisposable()
+        {
+            return _disposable;
+        }
     }
 
     public class Syntax<TModel, TView> : Syntax<TView>
         where TView : IView
     {
-        private readonly CompositeDisposable _disposable =
-            new CompositeDisposable();
         private readonly TModel _model;
 
         public Syntax(IContainer container, TModel model, TView view)
@@ -70,11 +75,6 @@ namespace Pierce.UI.Injection
                 Subscribe(state => presenter.Dispose());
 
             return this;
-        }
-
-        public IDisposable ToDisposable()
-        {
-            return _disposable;
         }
     }
 }

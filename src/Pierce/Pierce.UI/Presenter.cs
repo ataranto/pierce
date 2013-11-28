@@ -8,7 +8,7 @@ namespace Pierce.UI
 {
     public abstract class Presenter<TView> : IDisposable
     {
-        protected readonly CompositeDisposable _disposables =
+        private readonly CompositeDisposable _disposables =
             new CompositeDisposable();
 
         public IContainer Container { protected get; set; }
@@ -23,6 +23,11 @@ namespace Pierce.UI
             Container = null;
             UIScheduler = null;
             View = default(TView);
+        }
+
+        protected void AddDisposables(IEnumerable<IDisposable> disposables)
+        {
+            _disposables.Add(_disposables);
         }
     }
 
