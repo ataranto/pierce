@@ -8,27 +8,27 @@ namespace Pierce.UI.Injection
     public class Syntax<TView>
         where TView : IView
     {
-        protected readonly CompositeDisposable _disposable =
-            new CompositeDisposable();
         protected readonly IContainer _container;
         protected readonly TView _view;
+        protected readonly CompositeDisposable _disposables;
 
-        public Syntax(IContainer container, TView view)
+        public Syntax(IContainer container, TView view, CompositeDisposable disposables = null)
         {
             _container = container;
             _view = view;
+            _disposables = disposables ?? new CompositeDisposable();
         }
 
-		public Syntax<TView> Do(Action<TView> action)
-		{
-			action(_view);
-			return this;
-		}
+        public Syntax<TView> Do(Action<TView> action)
+        {
+            action(_view);
+            return this;
+        }
 
         public Syntax<TModel, TView> Model<TModel>(TModel model = null) where TModel : class
         {
             model = model ?? _container.Get<TModel>();
-            return new Syntax<TModel, TView>(_container, model, _view);
+            return new Syntax<TModel, TView>(_container, model, _view, _disposables);
         }
 
         public TView ToView()
@@ -38,7 +38,7 @@ namespace Pierce.UI.Injection
 
         public IDisposable ToDisposable()
         {
-            return _disposable;
+            return _disposables;
         }
     }
 
@@ -47,8 +47,8 @@ namespace Pierce.UI.Injection
     {
         private readonly TModel _model;
 
-        public Syntax(IContainer container, TModel model, TView view)
-            : base(container, view)
+        public Syntax(IContainer container, TModel model, TView view, CompositeDisposable disposables)
+            : base(container, view, disposables)
         {
             _model = model;
         }
@@ -58,7 +58,7 @@ namespace Pierce.UI.Injection
             where TPresenter : Presenter<TModel, TViewInterface>
         {
             var presenter = _container.Get<TPresenter>();
-            _disposable.Add(presenter);
+            _disposables.Add(presenter);
 
             presenter.Container = _container;
             presenter.UIScheduler = _container.Get<IScheduler>();
