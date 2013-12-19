@@ -27,7 +27,10 @@ namespace Pierce.UI
 
         protected void AddDisposables(IEnumerable<IDisposable> disposables)
         {
-            _disposables.Add(_disposables);
+            foreach (var disposable in disposables)
+            {
+                _disposables.Add(disposable);
+            }
         }
     }
 
