@@ -4,17 +4,8 @@ namespace Pierce.Json
 {
     public class JsonSerializer : IJsonSerializer
     {
-        private readonly JsonSerializerSettings _settings;
-
-        public JsonSerializer()
-        {
-            _settings = new DefaultSerializerSettings();
-        }
-
-        public JsonSerializer(JsonSerializerSettings settings)
-        {
-            _settings = settings;
-        }
+        private readonly JsonSerializerSettings _settings =
+            new DefaultSerializerSettings();
 
         string IJsonSerializer.Serialize(object @object)
         {

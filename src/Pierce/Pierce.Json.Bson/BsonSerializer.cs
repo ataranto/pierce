@@ -6,17 +6,8 @@ namespace Pierce.Json.Bson
 {
     public class BsonSerializer : IBsonSerializer
     {
-        private readonly JsonSerializerSettings _settings;
-
-        public BsonSerializer()
-        {
-            _settings = new DefaultSerializerSettings();
-        }
-
-        public BsonSerializer(JsonSerializerSettings settings)
-        {
-            _settings = settings;
-        }
+        private readonly JsonSerializerSettings _settings =
+            new DefaultSerializerSettings();
 
         byte[] IBsonSerializer.Serialize(object @object)
         {
