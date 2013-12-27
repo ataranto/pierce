@@ -48,6 +48,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Pierce.Json.Bson\BsonSerializer.cs" />
+    <Compile Include="Pierce.Json.Bson\IBsonSerializer.cs" />
+    <Compile Include="Pierce.Json\DefaultSerializerSettings.cs" />
     <Compile Include="Pierce.Json\IJsonSerializer.cs" />
     <Compile Include="Pierce.Json\JsonSerializer.cs" />
     <Compile Include="Pierce.Json\UnderscoreContractResolver.cs" />
