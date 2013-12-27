@@ -1,5 +1,4 @@
 ﻿using Pierce.Json;
-using Pierce.Json.SimpleJson;
 using System;
 using System.Text;
 
@@ -12,7 +11,7 @@ namespace Pierce.Net
 
         public JsonRequest(IJsonSerializer serializer = null)
         {
-            this._serializer = serializer ?? new SimpleJsonSerializer();
+            this._serializer = serializer ?? new JsonSerializer();
         }
 
         public override string BodyContentType

@@ -47,7 +47,6 @@
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
-    <Compile Include="Pierce.Json.SimpleJson.Test\SimpleJsonSerializerTest.cs" />
     <Compile Include="Pierce.Net.Test\JsonRequestTest.cs" />
     <Compile Include="Pierce.Test\TaskAssert.cs" />
     <Compile Include="Pierce.Test\MoqFixture.cs" />
