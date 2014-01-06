@@ -82,17 +82,18 @@ namespace Pierce.Net
             };
         }
 
-        private static string date_format = "ddd, dd MMM yyyy hh:mm:ss GMT";
         private static long ParseDate(string @string)
         {
-            try
-            {
-                var provider = CultureInfo.InvariantCulture;
-                var date = DateTime.ParseExact(@string, date_format, provider);
+            var culture_info = CultureInfo.InvariantCulture;
+            var format = culture_info.DateTimeFormat.RFC1123Pattern;
+            DateTime date_time;
 
-                return date.Ticks;
+            if (DateTime.TryParseExact(@string, format, culture_info,
+                DateTimeStyles.None, out date_time))
+            {
+                return date_time.Ticks;
             }
-            catch
+            else
             {
                 return 0;
             }
