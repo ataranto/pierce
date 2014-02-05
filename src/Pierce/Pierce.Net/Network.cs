@@ -29,8 +29,8 @@ namespace Pierce.Net
 
                 try
                 {
-                    var cache_headers = GetCacheHeaders(request.CacheEntry);
-                    response = _client.Execute(request, cache_headers);
+                    var headers = GetCacheHeaders(request.CacheEntry);
+                    response = _client.Execute(request, headers);
 
                     if (response.StatusCode == HttpStatusCode.NotModified)
                     {

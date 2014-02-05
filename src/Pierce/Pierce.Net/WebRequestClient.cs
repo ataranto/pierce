@@ -16,7 +16,7 @@ namespace Pierce.Net
             CookieContainer = new CookieContainer();
         }
 
-        public NetworkResponse Execute(Request request, WebHeaderCollection cache_headers)
+        public NetworkResponse Execute(Request request, WebHeaderCollection headers)
         {
             var web_request = WebRequest.Create(request.Uri) as HttpWebRequest;
             web_request.KeepAlive = true;
@@ -24,9 +24,9 @@ namespace Pierce.Net
             web_request.Timeout = request.RetryPolicy.CurrentTimeoutMs;
             web_request.CookieContainer = CookieContainer;
 
-            foreach (var key in cache_headers.AllKeys)
+            foreach (var key in headers.AllKeys)
             {
-                var parameters = new object[] { key, cache_headers[key] };
+                var parameters = new object[] { key, headers[key] };
                 AddWithoutValidate.Invoke(web_request.Headers, parameters);
             }
 
