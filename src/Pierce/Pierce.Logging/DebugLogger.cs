@@ -4,15 +4,17 @@ namespace Pierce.Logging
 {
 	public class DebugLogger : ILogger
     {
-        public string Tag
+        public DebugLogger(string name)
         {
-            private get; set;
+            Name = name;
         }
+
+        public string Name { get; private set; }
 
         public void Debug(string format, params object[] args)
         {
 			System.Diagnostics.Debug.
-				WriteLine(Tag + ":Debug:" + String.Format(format, args));
+				WriteLine(Name + ":Debug:" + String.Format(format, args));
         }
 
         public void Error(string format, params object[] args)
@@ -26,12 +28,16 @@ namespace Pierce.Logging
                 null :
                 "\n" + exception;
 			System.Diagnostics.Debug.
-				WriteLine(Tag + ":Error:" + String.Format(format, args) + exception_string);
+				WriteLine(Name + ":Error:" + String.Format(format, args) + exception_string);
         }
 
         public void Fatal(Exception exception, string format, params object[] args)
         {
-            // XXX
+            var exception_string = exception == null ?
+                null :
+                "\n" + exception;
+            System.Diagnostics.Debug.
+                WriteLine(Name + ":Fatal:" + String.Format(format, args) + exception_string);
         }
     }
 }
