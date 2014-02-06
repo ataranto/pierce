@@ -28,6 +28,11 @@ namespace Pierce.Logging
 			System.Diagnostics.Debug.
 				WriteLine(Tag + ":Error:" + String.Format(format, args) + exception_string);
         }
+
+        public void Fatal(Exception exception, string format, params object[] args)
+        {
+            // XXX
+        }
     }
 }
 

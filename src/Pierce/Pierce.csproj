@@ -54,6 +54,7 @@
     <Compile Include="Pierce.Json\IJsonSerializer.cs" />
     <Compile Include="Pierce.Json\JsonSerializer.cs" />
     <Compile Include="Pierce.Json\UnderscoreContractResolver.cs" />
+    <Compile Include="Pierce.Logging\ILogManager.cs" />
     <Compile Include="Pierce.Net\ICache.cs" />
     <Compile Include="Pierce.Net\INetwork.cs" />
     <Compile Include="Pierce.Net\IRequestQueue.cs" />

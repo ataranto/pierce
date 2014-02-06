@@ -23,9 +23,9 @@ namespace Pierce.Net
 
         private int _sequence;
 
-        public RequestQueue(ILogger logger, ICache cache, INetwork network, IResponseDelivery delivery)
+        public RequestQueue(ILogManager log, ICache cache, INetwork network, IResponseDelivery delivery)
         {
-            Log = logger;
+            Log = log.GetLogger();
             _cache = cache;
             _network = network;
             _delivery = delivery;

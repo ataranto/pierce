@@ -10,14 +10,9 @@ namespace Pierce.Net
         private readonly ILogger _logger;
         private readonly IHttpClient _client;
 
-        public Network(ILogger logger, IHttpClient client = null)
+        public Network(ILogManager log, IHttpClient client = null)
         {
-            if (logger == null)
-            {
-                throw new ArgumentNullException("log");
-            }
-
-            _logger = logger;
+            _logger = log.GetLogger();
             _client = client ?? new WebRequestClient();
         }
 
