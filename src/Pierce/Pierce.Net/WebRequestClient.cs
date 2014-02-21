@@ -20,6 +20,7 @@ namespace Pierce.Net
         {
             var web_request = WebRequest.Create(request.Uri) as HttpWebRequest;
             web_request.KeepAlive = true;
+            web_request.AllowAutoRedirect = false;
             web_request.Method = request.Method;
             web_request.Timeout = request.RetryPolicy.CurrentTimeoutMs;
             web_request.CookieContainer = CookieContainer;
