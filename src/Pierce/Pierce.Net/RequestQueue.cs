@@ -34,6 +34,8 @@ namespace Pierce.Net
 
             Task.Factory.StartNew(NetworkConsumer);
             Task.Factory.StartNew(NetworkConsumer);
+            Task.Factory.StartNew(NetworkConsumer);
+            Task.Factory.StartNew(NetworkConsumer);
         }
 
         public ILogger Log { get; private set; }
